@@ -37,6 +37,7 @@ sudo ninja -C build install
 ## Todo
 - [X] Implement basic functionality
 - [X] Implement styling via CSS
+- [ ] Implement keyboard interaction
 - [ ] Implement cli arguements
 - [ ] Create man page
 ## License
