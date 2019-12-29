@@ -18,25 +18,25 @@ button:hover {
 }
 
 #lock {
-    background-image: url("./assets/lock.svg");
+    background-image: url("/usr/local/share/wlogout/assets/lock.svg");
 }
 
 #logout {
-    background-image: url("./assets/logout.svg");
+    background-image: url("/usr/local/share/wlogout/assets/logout.svg");
 }
 
 #suspend {
-    background-image: url("./assets/suspend.svg");
+    background-image: url("/usr/local/share/wlogout/assets/suspend.svg");
 }
 
 #hibernate {
-    background-image: url("./assets/hibernate.svg");
+    background-image: url("/usr/local/share/wlogout/assets/hibernate.svg");
 }
 
 #shutdown {
-    background-image: url("./assets/shutdown.svg");
+    background-image: url("/usr/local/share/wlogout/assets/shutdown.svg");
 }
 
 #reboot {
-    background-image: url("./assets/reboot.svg");
+    background-image: url("/usr/local/share/wlogout/assets/reboot.svg");
 }
