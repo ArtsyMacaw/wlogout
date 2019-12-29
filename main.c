@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <gtk-layer-shell/gtk-layer-shell.h>
 #include <gtk/gtk.h>
 #include "jsmn.h"
@@ -10,7 +8,7 @@
 #define EXCLUSIVE 2
 #define MAX_SIZE 1024
 
-static int buttons_per_row = 3;
+static int margin = 500;
 
 typedef struct
 {
@@ -19,12 +17,15 @@ typedef struct
     char text[MAX_SIZE];
 } button;
 
+static char command[MAX_SIZE];
 static button buttons[MAX_SIZE];
 static int num_buttons = 0;
+static int buttons_per_row = 3;
+static GtkWidget *gtk_window;
 
 static GtkWidget *get_window();
 static char *get_string(char *s, int start, int end, char *buf);
-static bool get_buttons(FILE *json);
+static gboolean get_buttons(FILE *json);
 static void display_buttons(GtkWindow *window);
 static void load_css();
 
@@ -45,19 +46,22 @@ int main (int argc, char *argv[])
         return 3; 
     }
 
-    GtkWidget *gtk_window = get_window();
-    gtk_container_set_border_width(GTK_CONTAINER(gtk_window), 500);
+    gtk_window = get_window();
+    gtk_container_set_border_width(GTK_CONTAINER(gtk_window), margin);
     display_buttons(GTK_WINDOW(gtk_window));
     load_css();
     gtk_widget_show_all(gtk_window);
 
     gtk_main();
+
+    system(command);
 }
 
 static void execute(GtkWidget *widget, char *action)
 {
+    strcpy(command, action);
+    gtk_widget_hide(gtk_window);
     gtk_main_quit();
-    system(action);
 }
 
 static void display_buttons(GtkWindow *window)
@@ -88,15 +92,15 @@ static void display_buttons(GtkWindow *window)
                         gtk_bin_get_child(GTK_BIN(but[i][j]))), 0.9);
             g_signal_connect(but[i][j], "clicked", G_CALLBACK(execute),
                         buttons[count].action);
-            gtk_widget_set_hexpand(but[i][j], true);
-            gtk_widget_set_vexpand(but[i][j], true);
+            gtk_widget_set_hexpand(but[i][j], TRUE);
+            gtk_widget_set_vexpand(but[i][j], TRUE);
             gtk_grid_attach(GTK_GRID(grid), but[i][j], i, j, 1, 1);
             count++;
         }
     }
 }
 
-static bool get_buttons(FILE *json)
+static gboolean get_buttons(FILE *json)
 {
     fseek(json, 0L, SEEK_END);
     int length = ftell(json);
@@ -106,7 +110,7 @@ static bool get_buttons(FILE *json)
     if (!buffer)
     {
         fprintf(stderr, "Failed to allocate memory\n");
-        return true;
+        return TRUE;
     }
     fread(buffer, 1, length, json);
 
@@ -115,7 +119,7 @@ static bool get_buttons(FILE *json)
     if (!tok)
     {
         fprintf(stderr, "Failed to allocate memory\n");
-        return true;
+        return TRUE;
     }
     jsmn_init(&p);
     int numtok = jsmn_parse(&p, buffer, length, tok, MAX_SIZE);
@@ -123,7 +127,7 @@ static bool get_buttons(FILE *json)
     if (numtok < 0)
     {
         fprintf(stderr, "Failed to parse json data\n");
-        return true;
+        return TRUE;
     }
     
     for (int i = 0; i < numtok; i++)
@@ -159,20 +163,20 @@ static bool get_buttons(FILE *json)
             else
             {
                 fprintf(stderr, "Invalid key\n");
-                return true;
+                return TRUE;
             }
         }
         else
         {
             fprintf(stderr, "Invalid JSON Data\n");
-            return true;
+            return TRUE;
         }
     }
     
     free(tok);
     free(buffer);
     fclose(json);
-    return false;
+    return FALSE;
 }
 
 char *get_string(char *s, int start, int end, char *buf)
@@ -188,6 +192,7 @@ static GtkWidget *get_window()
     gtk_layer_init_for_window (window);
     gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
     gtk_layer_set_exclusive_zone (window, EXCLUSIVE);
+    gtk_layer_set_keyboard_interactivity (window, FALSE);
 
     static const gboolean anchors[] = {TRUE, TRUE, TRUE, TRUE};
     for (int i = 0; i < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; i++) {
