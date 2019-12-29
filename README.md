@@ -1,32 +1,9 @@
 # WLOGOUT
-## Purpose
-Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell protocol. For those wanting a xorg based logout menu look at [oblogout](https://launchpad.net/oblogout).
-
 ![Example](example.png)
-### Table of Contents
-[Status](#status)
-
-[TODO](#todo)
-
-[Usage](#usage)
-
-[Compiling from Source](#compile)
-
-<a name="status"/>
-
+> Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell
+> protocol. For those wanting a xorg based logout menu look at [oblogout](https://launchpad.net/oblogout).
 ## Status
 Version 0.2 Alpha
-
-<a name="todo"/>
-
-### TODO
-- [X] Implement basic functionality
-- [X] Implement styling via CSS
-- [ ] Implement cli arguements
-- [ ] Create man page
-
-<a name="usage"/>
-
 ## Usage 
 Simply call
 ```
@@ -41,9 +18,8 @@ Where the json file contains a list of however many buttons in json format e.g.
 }
 ```
 Default buttons are provided in the *layout* file and also serve as a useful example if you would like to create your own.
-
-<a name="compile"/>
-
+## Style
+Wlogout can be easily styled through style.css file; If you would like to style a button use the label given to it in the layout file, and for other styling refer to the wonderful [GTK Manual](https://developer.gnome.org/gtk3/stable/chap-css-properties.html) which shows all the allowed css.
 ## Compiling from Source
 Install dependencies:
 * GTK+  
@@ -59,3 +35,8 @@ cd wlogout
 meson build
 ninja -C build
 ```
+## TODO
+- [X] Implement basic functionality
+- [X] Implement styling via CSS
+- [ ] Implement cli arguements
+- [ ] Create man page
