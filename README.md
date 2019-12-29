@@ -10,16 +10,18 @@ Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environ
 
 [Compiling from Source](#compile)
 <a name="status"/>
-## Status
+### Status
 Version 0.1 Alpha
 <a name="todo"/>
-## TODO
+### TODO
 - [X] Implement basic functionality
 - [ ] Implement styling via CSS
 - [ ] Implement cli arguements
 - [ ] Create man page
+
 <a name="usage"/>
-## Usage
+### Usage
+
 Simply call
 ```
 ./wlogout (path to json file)
@@ -33,7 +35,7 @@ where the json file contains a list of however many buttons in json format e.g.
 }
 ```
 <a name="compile"/>
-## Compiling from Source
+### Compiling from Source
 Install dependencies:
 * GTK+  
 * [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) 
