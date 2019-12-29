@@ -32,6 +32,7 @@ git clone https://github.com/ArtsyMacaw/wlogout.git
 cd wlogout
 meson build
 ninja -C build
+sudo ninja -C build install
 ```
 ## Todo
 - [X] Implement basic functionality
