@@ -35,7 +35,7 @@ cd wlogout
 meson build
 ninja -C build
 ```
-## TODO
+## Todo
 - [X] Implement basic functionality
 - [X] Implement styling via CSS
 - [ ] Implement cli arguements
