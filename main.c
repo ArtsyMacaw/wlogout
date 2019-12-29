@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <gtk-layer-shell/gtk-layer-shell.h>
 #include <gtk/gtk.h>
 #include "jsmn.h"
@@ -45,7 +46,7 @@ int main (int argc, char *argv[])
     }
 
     GtkWidget *gtk_window = get_window();
-    gtk_container_set_border_width(GTK_CONTAINER(gtk_window), 100);
+    gtk_container_set_border_width(GTK_CONTAINER(gtk_window), 500);
     display_buttons(GTK_WINDOW(gtk_window));
     load_css();
     gtk_widget_show_all(gtk_window);
@@ -125,7 +126,7 @@ static bool get_buttons(FILE *json)
         return true;
     }
     
-    for (int i = 0; i < (numtok - 1); i++)
+    for (int i = 0; i < numtok; i++)
     {
         if (tok[i].type == JSMN_OBJECT)
         {
@@ -135,24 +136,30 @@ static bool get_buttons(FILE *json)
         {
             char tmp[tok[i].end - tok[i].start + 1];
             get_string(tmp, tok[i].start, tok[i].end, buffer);
+            i++;
 
             if (strcmp(tmp, "label") == 0)
             {
-                char buf[tok[i + 1].end - tok[i + 1].start + 1];
-                get_string(buf, tok[i + 1].start, tok[i + 1].end, buffer);
+                char buf[tok[i].end - tok[i].start + 1];
+                get_string(buf, tok[i].start, tok[i].end, buffer);
                 strcpy(buttons[num_buttons - 1].label, buf);
             }
             else if (strcmp(tmp, "action") == 0)
             {
-                char buf[tok[i + 1].end - tok[i + 1].start + 1];
-                get_string(buf, tok[i + 1].start, tok[i + 1].end, buffer);
+                char buf[tok[i].end - tok[i].start + 1];
+                get_string(buf, tok[i].start, tok[i].end, buffer);
                 strcpy(buttons[num_buttons - 1].action, buf);
             }
             else if (strcmp(tmp, "text") == 0)
             {
-                char buf[tok[i + 1].end - tok[i + 1].start + 1];
-                get_string(buf, tok[i + 1].start, tok[i + 1].end, buffer);
+                char buf[tok[i].end - tok[i].start + 1];
+                get_string(buf, tok[i].start, tok[i].end, buffer);
                 strcpy(buttons[num_buttons - 1].text, buf);
+            }
+            else
+            {
+                fprintf(stderr, "Invalid key\n");
+                return true;
             }
         }
         else
@@ -193,7 +200,7 @@ static GtkWidget *get_window()
 static void load_css()
 {
     GtkCssProvider *css = gtk_css_provider_new();
-    gtk_css_provider_load_from_path(css, "style.css", NULL);
+    gtk_css_provider_load_from_path(css, "/usr/local/etc/wlogout/style.css", NULL);
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
                 GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_USER);
 }
