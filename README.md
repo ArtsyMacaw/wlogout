@@ -2,8 +2,6 @@
 ![Example](example.png)
 > Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell
 > protocol. For those wanting a xorg based logout menu look at [oblogout](https://launchpad.net/oblogout).
-## Status
-Version 0.2 Alpha
 ## Usage 
 Simply call
 ```
@@ -40,3 +38,5 @@ ninja -C build
 - [X] Implement styling via CSS
 - [ ] Implement cli arguements
 - [ ] Create man page
+## License
+Wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)
