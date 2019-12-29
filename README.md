@@ -49,6 +49,8 @@ Install dependencies:
 * GTK+  
 * [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) 
 * meson
+* systemd (optional: default buttons)
+* swaylock (optional: default buttons)
 
 Run these commands:
 ```
