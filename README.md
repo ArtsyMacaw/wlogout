@@ -2,7 +2,7 @@
 ## Purpose
 Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell protocol. For those wanting a xorg based logout menu look at [oblogout](https://launchpad.net/oblogout).
 
-[Example](example.png)
+![Example](example.png)
 ### Table of Contents
 [Status](#status)
 
