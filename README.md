@@ -40,7 +40,7 @@ Where the json file contains a list of however many buttons in json format e.g.
     "text" : "text displayed on button"
 }
 ```
-Default buttons are provided in the *layout* file and also serve as a useful example if you would like to create your own.
+Default buttons are provided in the [layout](layout) file and also serve as a useful example if you would like to create your own.
 
 <a name="compile"/>
 
