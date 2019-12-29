@@ -25,6 +25,7 @@ static GtkWidget *get_window();
 static char *get_string(char *s, int start, int end, char *buf);
 static bool get_buttons(FILE *json);
 static void display_buttons(GtkWindow *window);
+static void load_css();
 
 int main (int argc, char *argv[])
 {
@@ -44,7 +45,9 @@ int main (int argc, char *argv[])
     }
 
     GtkWidget *gtk_window = get_window();
+    gtk_container_set_border_width(GTK_CONTAINER(gtk_window), 100);
     display_buttons(GTK_WINDOW(gtk_window));
+    load_css();
     gtk_widget_show_all(gtk_window);
 
     gtk_main();
@@ -185,4 +188,12 @@ static GtkWidget *get_window()
     }
 
     return GTK_WIDGET(window);
+}
+
+static void load_css()
+{
+    GtkCssProvider *css = gtk_css_provider_new();
+    gtk_css_provider_load_from_path(css, "style.css", NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+                GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_USER);
 }

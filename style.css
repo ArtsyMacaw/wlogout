@@ -1,0 +1,42 @@
+* {
+	background-image: none;
+}
+window {
+	background-color: rgba(12, 12, 12, 0.9);
+}
+button {
+	background-color: #1E1E1E;
+	border-style: solid;
+	border-width: 2px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 35%;
+}
+
+button:hover {
+	background-color: #3700B3;
+}
+
+#lock {
+    background-image: url("./assets/lock.svg");
+}
+
+#logout {
+    background-image: url("./assets/logout.svg");
+}
+
+#suspend {
+    background-image: url("./assets/suspend.svg");
+}
+
+#hibernate {
+    background-image: url("./assets/hibernate.svg");
+}
+
+#shutdown {
+    background-image: url("./assets/shutdown.svg");
+}
+
+#reboot {
+    background-image: url("./assets/reboot.svg");
+}

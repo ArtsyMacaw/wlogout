@@ -1,6 +1,8 @@
 # WLOGOUT
 ## Purpose
 Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell protocol. For those wanting a xorg based logout menu look at [oblogout](https://launchpad.net/oblogout).
+
+[Example](example.png)
 ### Table of Contents
 [Status](#status)
 
@@ -13,13 +15,13 @@ Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environ
 <a name="status"/>
 
 ## Status
-Version 0.1 Alpha
+Version 0.2 Alpha
 
 <a name="todo"/>
 
 ### TODO
 - [X] Implement basic functionality
-- [ ] Implement styling via CSS
+- [X] Implement styling via CSS
 - [ ] Implement cli arguements
 - [ ] Create man page
 
@@ -30,7 +32,7 @@ Simply call
 ```
 ./wlogout (path to json file)
 ```
-where the json file contains a list of however many buttons in json format e.g.
+Where the json file contains a list of however many buttons in json format e.g.
 ```
 {
     "label" : "CSS Label",
@@ -38,6 +40,7 @@ where the json file contains a list of however many buttons in json format e.g.
     "text" : "text displayed on button"
 }
 ```
+Default buttons are provided in the *layout* file and also serve as a usefull example if you would like to create your own.
 
 <a name="compile"/>
 
