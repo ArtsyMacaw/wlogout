@@ -17,6 +17,14 @@ button:hover {
 	background-color: #3700B3;
 }
 
+button:active {
+	background-color: #3700B3;
+}
+
+button:focus {
+	background-color: #3700B3;
+}
+
 #lock {
     background-image: url("/usr/local/share/wlogout/assets/lock.svg");
 }
