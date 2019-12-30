@@ -1,13 +1,10 @@
-# WLOGOUT
+# wlogout
 ![Example](example.png)
-> Wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell
-> protocol. For those wanting a xorg based logout menu look at [oblogout](https://launchpad.net/oblogout).
-## Usage 
-Simply call
-```
-./wlogout (path to json file)
-```
-Where the json file contains a list of however many buttons in json format e.g.
+> wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell protocol
+## Running
+Run `wlogout` from within any wayland environment that supports layer shell protocol; Any window manager using [wlroots](https://github.com/swaywm/wlroots) will likey work, as well as an up to date version of KDE
+## Layout
+Custom buttons can be defined and edited in a layout file. The format is as follows:
 ```
 {
     "label" : "CSS Label",
@@ -15,9 +12,9 @@ Where the json file contains a list of however many buttons in json format e.g.
     "text" : "text displayed on button"
 }
 ```
-Default buttons are provided in the [layout](layout) file and also serve as a useful example if you would like to create your own.
+Check the default [layout file](layout) for examples and inspiration.
 ## Style
-Wlogout can be easily styled through style.css file; If you would like to style a button use the label given to it in the layout file, and for other styling refer to the wonderful [GTK Manual](https://developer.gnome.org/gtk3/stable/chap-css-properties.html) which shows all the allowed css.
+wlogout can be easily styled through a css file; If you would like to style a button use the label given to it in the layout file, and for other styling refer to the [GTK Manual](https://developer.gnome.org/gtk3/stable/chap-css-properties.html) which shows all the allowed css.
 ## Compiling from Source
 Install dependencies:
 * GTK+  
@@ -37,8 +34,8 @@ sudo ninja -C build install
 ## Todo
 - [X] Implement basic functionality
 - [X] Implement styling via CSS
+- [X] Implement cli arguements
 - [ ] Implement keyboard interaction
-- [ ] Implement cli arguements
 - [ ] Create man page
 ## License
 Wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)

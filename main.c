@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
 #include <gtk-layer-shell/gtk-layer-shell.h>
 #include <gtk/gtk.h>
 #include "jsmn.h"
 
 static const int exclusive_level = 2;
 static const int default_size = 100;
+static const char *version = "Alpha-0.3\n";
 
 typedef struct
 {
@@ -16,6 +19,8 @@ typedef struct
 } button;
 
 static char *command;
+static char *layout_path = NULL;
+static char *css_path = NULL;
 static button *buttons;
 static GtkWidget *gtk_window;
 
@@ -28,6 +33,8 @@ static char *get_substring(char *s, int start, int end, char *buf);
 static gboolean get_buttons(FILE *json);
 static void display_buttons(GtkWindow *window);
 static void load_css();
+gboolean process_args(int argc, char *argv[]);
+gboolean get_layout_path();
 
 int main (int argc, char *argv[])
 {
@@ -35,11 +42,21 @@ int main (int argc, char *argv[])
 
     g_set_prgname("wlogout");
     gtk_init(&argc, &argv);
+    if (process_args(argc, argv))
+    {
+        return 0;
+    }
+
+    if (get_layout_path())
+    {
+        g_warning("Failed to find a layout");
+        return 1;
+    }
     
-    FILE *inptr = fopen(argv[1], "r");
+    FILE *inptr = fopen(layout_path, "r");
     if (!inptr)
     {
-        g_warning("Failed to open %s\n", argv[1]);
+        g_warning("Failed to open %s\n", layout_path);
         return 2;
     }
     if (get_buttons(inptr))
@@ -121,7 +138,7 @@ static gboolean get_buttons(FILE *json)
     fread(buffer, 1, length, json);
 
     jsmn_parser p;
-    jsmntok_t *tok = malloc(default_size);
+    jsmntok_t *tok = malloc(default_size * sizeof(jsmntok_t));
     if (!tok)
     {
         g_warning("Failed to allocate memory\n");
@@ -132,8 +149,26 @@ static gboolean get_buttons(FILE *json)
     do
     {
         numtok = jsmn_parse(&p, buffer, length, tok, default_size * i);
-        i++;
-    } while (numtok == JSMN_ERROR_NOMEM);
+        if (numtok == JSMN_ERROR_NOMEM)
+        {
+            i++;
+            jsmntok_t *tmp = realloc(tok,
+                    ((default_size * i) * sizeof(jsmntok_t)));
+            if (!tmp)
+            {
+                free(tok);
+                return FALSE;
+            }
+            else if (tmp != tok)
+            {
+                tok = tmp;
+            }
+        }
+        else
+        {
+            break;
+        }
+    } while (TRUE);
 
     if (numtok < 0)
     {
@@ -222,12 +257,104 @@ static GtkWidget *get_window()
     return GTK_WIDGET(window);
 }
 
+gboolean process_args(int argc, char *argv[])
+{
+    static struct option long_options[] =
+    {
+        {"help", no_argument, NULL, 'h'},
+        {"layout", required_argument, NULL, 'l'},
+        {"version", no_argument, NULL, 'v'},
+        {"css", required_argument, NULL, 'C'},
+        {"margin", required_argument, NULL, 'm'},
+        {"buttons-per-row", required_argument, NULL, 'b'},
+        {0, 0, 0, 0}
+    };
+
+    const char *help =
+        "Usage: wlogout [options]\n"
+        "\n"
+        "   -h, --help              Show help message and stop\n"
+        "   -l, --layout            Specify a layout file\n"
+        "   -v, --version           Show version number and stop\n"
+        "   -C, --css               Specify a css file\n"
+        "   -m, --margin            Set margin around buttons\n"
+        "   -b, --buttons-per-row   Set the number of buttons per row\n"
+        "\n";
+
+    int c;
+    while (TRUE)
+    {
+        int option_index = 0;
+        c = getopt_long(argc, argv, "hl:vc:m:b:", long_options, &option_index);
+        if (c == -1)
+        {
+            break;
+        }
+        switch (c)
+        {
+            case 'h':
+                g_print(help);
+                return TRUE;
+            case 'l':
+                layout_path = strdup(optarg);
+                break;
+            case 'v':
+                g_print(version);
+                return TRUE;
+            case 'C':
+                css_path = strdup(optarg);
+                break;
+            case 'm':
+                margin = atoi(optarg);
+                break;
+            case 'b':
+                buttons_per_row = atoi(optarg);
+                break;
+        }
+    }
+    return FALSE;
+}
+
+gboolean get_layout_path()
+{
+    if (layout_path)
+    {
+        return FALSE;
+    }
+    else if (access("/etc/wlogout/layout", F_OK) != -1)
+    {
+        layout_path = "/etc/wlogout/layout";
+        return FALSE;
+    }
+    else if (access("/usr/local/etc/wlogout/layout", F_OK) != -1)
+    {
+        layout_path = "/usr/local/etc/wlogout/layout";
+        return FALSE;
+    }
+    else
+    {
+        return TRUE;
+    }
+}
+
 static void load_css()
 {
     GtkCssProvider *css = gtk_css_provider_new();
+
+    if (!css_path)
+    {
+        if (access("/etc/wlogout/style.css", F_OK) != -1)
+        {
+            css_path = "/etc/wlogout/style.css";
+        }
+        else if (access("/usr/local/etc/wlogout/style.css", F_OK) != -1)
+        {
+            css_path = "/usr/local/etc/wlogout/style.css";
+        }
+    }
+
     GError *error = NULL;
-    gtk_css_provider_load_from_path(css, "/usr/local/etc/wlogout/style.css",
-            &error);
+    gtk_css_provider_load_from_path(css, css_path, &error);
     if (error)
     {
         g_warning("%s", error->message);
