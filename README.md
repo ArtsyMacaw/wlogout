@@ -9,7 +9,8 @@ Custom buttons can be defined and edited in a layout file. The format is as foll
 {
     "label" : "CSS Label",
     "action" : "command to execute when clicked",
-    "text" : "text displayed on button"
+    "text" : "text displayed on button",
+    "keybind" : "character to be bound"
 }
 ```
 Check the default [layout file](layout) for examples and inspiration.
@@ -35,7 +36,7 @@ sudo ninja -C build install
 - [X] Implement basic functionality
 - [X] Implement styling via CSS
 - [X] Implement cli arguements
-- [ ] Implement keyboard interaction
+- [X] Implement keyboard interaction
 - [ ] Create man page
 ## License
 Wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)

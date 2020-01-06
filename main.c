@@ -9,13 +9,14 @@
 
 static const int exclusive_level = 2;
 static const int default_size = 100;
-static const char *version = "Alpha-0.3\n";
+static const char *version = "Alpha-0.4\n";
 
 typedef struct
 {
     char *label;
     char *action;
     char *text;
+    char bind;
 } button;
 
 static char *command;
@@ -35,6 +36,25 @@ static void display_buttons(GtkWindow *window);
 static void load_css();
 gboolean process_args(int argc, char *argv[]);
 gboolean get_layout_path();
+static void execute(GtkWidget *widget, char *action);
+
+static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+    if (event->keyval == GDK_KEY_Escape) {
+        gtk_main_quit();
+        return TRUE;
+    }
+    // bad hack fix at some point
+    for (int i = 0; i < num_buttons; i++)
+    {
+        if (buttons[i].bind == event->keyval)
+        {
+            execute(NULL, buttons[i].action);
+            return TRUE;
+        }
+    }
+    return FALSE; 
+}
 
 int main (int argc, char *argv[])
 {
@@ -67,8 +87,8 @@ int main (int argc, char *argv[])
 
     gtk_window = get_window();
     gtk_container_set_border_width(GTK_CONTAINER(gtk_window), margin);
+    g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key), NULL);
     display_buttons(GTK_WINDOW(gtk_window));
-    free(buttons);
 
     load_css();
     gtk_widget_show_all(gtk_window);
@@ -214,6 +234,10 @@ static gboolean get_buttons(FILE *json)
                         * length + 1);
                 strcpy(buttons[num_buttons - 1].text, buf);
             }
+            else if (strcmp(tmp, "keybind") == 0)
+            {
+                buttons[num_buttons - 1].bind = buffer[tok[i].start];
+            }
             else
             {
                 g_warning("Invalid key %s\n", tmp);
@@ -226,7 +250,7 @@ static gboolean get_buttons(FILE *json)
             return TRUE;
         }
     }
-    
+
     free(tok);
     free(buffer);
     fclose(json);
@@ -247,11 +271,10 @@ static GtkWidget *get_window()
     gtk_layer_init_for_window (window);
     gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
     gtk_layer_set_exclusive_zone (window, exclusive_level);
-    gtk_layer_set_keyboard_interactivity (window, FALSE);
+    gtk_layer_set_keyboard_interactivity (window, TRUE);
 
-    static const gboolean anchors[] = {TRUE, TRUE, TRUE, TRUE};
     for (int i = 0; i < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; i++) {
-        gtk_layer_set_anchor (window, i, anchors[i]);
+        gtk_layer_set_anchor (window, i, TRUE);
     }
 
     return GTK_WIDGET(window);

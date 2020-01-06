@@ -1,8 +1,13 @@
 project(
         'wlogout', 
         'c', 
-        version: '0.3',
-        license: 'MIT'
+        version: '0.4',
+        license: 'MIT',
+        default_options:
+        [
+            'c_std=c11',
+            'werror=true'
+        ]
 )
 
 datadir = get_option('datadir')

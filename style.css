@@ -23,6 +23,7 @@ button:active {
 
 button:focus {
 	background-color: #3700B3;
+	outline-style: none;
 }
 
 #lock {
