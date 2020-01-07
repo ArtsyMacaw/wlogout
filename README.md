@@ -2,7 +2,7 @@
 ![Example](example.png)
 > wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell protocol
 ## Running
-Run `wlogout` from within any wayland environment that supports layer shell protocol; Any window manager using [wlroots](https://github.com/swaywm/wlroots) will likey work, as well as an up to date version of KDE
+Run `wlogout` from within any wayland environment that supports layer shell protocol; Any window manager using [wlroots](https://github.com/swaywm/wlroots) will likely work, as well as an up to date version of KDE
 ## Layout
 Custom buttons can be defined and edited in a layout file. The format is as follows:
 ```
