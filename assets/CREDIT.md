@@ -1,5 +1,7 @@
 # Credits
 ## Svg's
+All svgs used to render icons
+
 [Lock icon](lock.svg) from [onlinewebfonts](https://www.onlinewebfonts.com/icon/312) licensed by Creative Commons 3.0
 
 [Logout icon](logout.svg) from [onlinewebfonts](https://www.onlinewebfonts.com/icon/248752) licensed by Creative Commons 3.0

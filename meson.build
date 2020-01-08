@@ -10,6 +10,15 @@ project(
         ]
 )
 
+add_project_arguments(
+        [
+            '-Wno-unused-parameter',
+		    '-Wno-unused-result',
+		    '-Wno-missing-braces'
+        ],
+        language: 'c'
+)
+
 datadir = get_option('datadir')
 sysconfdir = get_option('sysconfdir')
 
@@ -17,6 +26,7 @@ gtk = dependency('gtk+-wayland-3.0')
 layershell = dependency('gtk-layer-shell-0')
 
 install_subdir('assets', install_dir : datadir / 'wlogout')
+install_subdir('icons', install_dir : datadir / 'wlogout')
 install_data(['layout', 'style.css'], install_dir : sysconfdir / 'wlogout')
 
 executable('wlogout', 'main.c', dependencies : [gtk, layershell], install : true)
