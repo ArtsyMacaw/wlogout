@@ -33,13 +33,5 @@ meson build
 ninja -C build
 sudo ninja -C build install
 ```
-## Todo
-- [X] Implement basic functionality
-- [X] Implement styling via CSS
-- [X] Implement cli arguements
-- [X] Implement keyboard interaction
-- [X] Create man page
-- [X] Shell completions
-
 ## License
 Wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)
