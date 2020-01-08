@@ -1,0 +1,11 @@
+complete -f -c wlogout
+complete -c wlogout -s h -l help -d "Show help message and stop"
+complete -c wlogout -s v -l version -d "Show version number and stop"
+complete -c wlogout -s l -l layout -r -d "Specify a layout file"
+complete -c wlogout -s C -l css -r -d "Specify a css file"
+complete -c wlogout -s b -l buttons-per-row -r -d "Set the number of buttons per row"
+complete -c wlogout -s m -l margin -r -d "Set margin around buttons"
+complete -c wlogout -s L -l margin-left -r -d "Set margin for left of buttons"
+complete -c wlogout -s R -l margin-right -r -d "Set margin for right of buttons"
+complete -c wlogout -s T -l margin-top -r -d "Set margin for top of buttons"
+complete -c wlogout -s B -l margin-bottom -r -d "et margin for bottom of buttons"

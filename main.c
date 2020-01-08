@@ -3,144 +3,260 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <gtk-layer-shell/gtk-layer-shell.h>
 #include <gtk/gtk.h>
+#include <gtk-layer-shell/gtk-layer-shell.h>
 #include "jsmn.h"
 
 static const int exclusive_level = 2;
 static const int default_size = 100;
-static const char *version = "Alpha-0.4\n";
+static const char *version = "Alpha-0.5\n";
 
 typedef struct
 {
     char *label;
     char *action;
     char *text;
-    char bind;
+    guint bind;
 } button;
 
-static char *command;
+static char *command = NULL;
 static char *layout_path = NULL;
 static char *css_path = NULL;
-static button *buttons;
-static GtkWidget *gtk_window;
+static button *buttons = NULL;
+static GtkWidget *gtk_window = NULL;
 
 static int num_buttons = 0;
+
 static int buttons_per_row = 3;
-static int margin = 500;
+static int margin[] = {230, 230, 230, 230};
 
-static GtkWidget *get_window();
-static char *get_substring(char *s, int start, int end, char *buf);
-static gboolean get_buttons(FILE *json);
-static void display_buttons(GtkWindow *window);
-static void load_css();
-gboolean process_args(int argc, char *argv[]);
-gboolean get_layout_path();
-static void execute(GtkWidget *widget, char *action);
-
-static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
+static gboolean process_args(int argc, char *argv[])
 {
-    if (event->keyval == GDK_KEY_Escape) {
-        gtk_main_quit();
-        return TRUE;
-    }
-    // bad hack fix at some point
-    for (int i = 0; i < num_buttons; i++)
+    static struct option long_options[] =
     {
-        if (buttons[i].bind == event->keyval)
+        {"help", no_argument, NULL, 'h'},
+        {"layout", required_argument, NULL, 'l'},
+        {"version", no_argument, NULL, 'v'},
+        {"css", required_argument, NULL, 'C'},
+        {"margin", required_argument, NULL, 'm'},
+        {"margin-top", required_argument, NULL, 'T'},
+        {"margin-bottom", required_argument, NULL, 'B'},
+        {"margin-left", required_argument, NULL, 'L'},
+        {"margin-right", required_argument, NULL, 'R'},
+        {"buttons-per-row", required_argument, NULL, 'b'},
+        {0, 0, 0, 0}
+    };
+
+    const char *help =
+        "Usage: wlogout [options] [command]\n"
+        "\n"
+        "   -h, --help                      Show help message and stop\n"
+        "   -l, --layout <layout>           Specify a layout file\n"
+        "   -v, --version                   Show version number and stop\n"
+        "   -C, --css <css>                 Specify a css file\n"
+        "   -b, --buttons-per-row <num>     Set the number of buttons per row\n"
+        "   -m, --margin <padding>          Set margin around buttons\n"
+        "   -L, --margin-left <padding>     Set margin for left of buttons\n"
+        "   -R, --margin-right <padding>    Set margin for right of buttons\n"
+        "   -T, --margin-top <padding>      Set margin for top of buttons\n"
+        "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n"
+        "\n";
+
+    int c;
+    while (TRUE)
+    {
+        int option_index = 0;
+        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:",
+                long_options, &option_index);
+        if (c == -1)
         {
-            execute(NULL, buttons[i].action);
-            return TRUE;
+            break;
+        }
+        switch (c)
+        {
+            case 'm':
+                margin[0] = atoi(optarg);
+                margin[1] = atoi(optarg);
+                margin[2] = atoi(optarg);
+                margin[3] = atoi(optarg);
+                break;
+            case 'L':
+                margin[2] = atoi(optarg);
+                break;
+            case 'T':
+                margin[0] = atoi(optarg);
+                break;
+            case 'B':
+                margin[1] = atoi(optarg);
+                break;
+            case 'R':
+                margin[3] = atoi(optarg);
+                break;
+            case 'h':
+                g_print(help);
+                return TRUE;
+            case 'l':
+                layout_path = g_strdup(optarg);
+                break;
+            case 'v':
+                g_print(version);
+                return TRUE;
+            case 'C':
+                css_path = g_strdup(optarg);
+                break;
+            case 'b':
+                buttons_per_row = atoi(optarg);
+                break;
         }
     }
-    return FALSE; 
+    return FALSE;
 }
 
-int main (int argc, char *argv[])
+static gboolean get_layout_path()
 {
-    buttons = malloc(sizeof(button) * default_size);
-
-    g_set_prgname("wlogout");
-    gtk_init(&argc, &argv);
-    if (process_args(argc, argv))
+    char *buf = malloc(default_size * sizeof(char));
+    if (!buf)
     {
-        return 0;
-    }
-
-    if (get_layout_path())
-    {
-        g_warning("Failed to find a layout");
-        return 1;
+        fprintf(stderr, "Failed to allocate memory\n");
     }
     
-    FILE *inptr = fopen(layout_path, "r");
-    if (!inptr)
+    char *config_path = getenv("XDG_CONFIG_HOME");
+    if (!config_path)
     {
-        g_warning("Failed to open %s\n", layout_path);
-        return 2;
+        config_path = getenv("HOME");
+        int n = snprintf(buf, default_size, "%s/.config", config_path);
+        if (n != 0)
+        {
+            free(buf);
+            buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
+            snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+                    "%s/.config", config_path);
+        }
+        config_path = g_strdup(buf);
     }
-    if (get_buttons(inptr))
+
+    int n = snprintf(buf, default_size, "%s/wlogout/layout", config_path);
+    if (n != 0)
     {
-        fclose(inptr);
-        return 3; 
+        free(buf);
+        buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
+        snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+                "%s/wlogout/layout", config_path);
     }
+    free(config_path);
 
-    gtk_window = get_window();
-    gtk_container_set_border_width(GTK_CONTAINER(gtk_window), margin);
-    g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key), NULL);
-    display_buttons(GTK_WINDOW(gtk_window));
-
-    load_css();
-    gtk_widget_show_all(gtk_window);
-
-    gtk_main();
-    system(command);
-
-    free(command);
-}
-
-static void execute(GtkWidget *widget, char *action)
-{
-    command = malloc(strlen(action) * sizeof(char) + 1);
-    strcpy(command, action);
-    gtk_widget_destroy(gtk_window);
-    gtk_main_quit();
-}
-
-static void display_buttons(GtkWindow *window)
-{
-    GtkWidget *grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER (window), grid);
-
-    int num_col = 0;
-    if ((num_buttons % buttons_per_row) == 0)
+    if (layout_path)
     {
-        num_col = (num_buttons / buttons_per_row);
+        free(buf);
+        return FALSE;
+    }
+    else if (access(buf, F_OK) != -1)
+    {
+        layout_path = g_strdup(buf);
+        free(buf);
+        return FALSE;
+    }
+    else if (access("/etc/wlogout/layout", F_OK) != -1)
+    {
+        layout_path = "/etc/wlogout/layout";
+        free(buf);
+        return FALSE;
+    }
+    else if (access("/usr/local/etc/wlogout/layout", F_OK) != -1)
+    {
+        layout_path = "/usr/local/etc/wlogout/layout";
+        free(buf);
+        return FALSE;
     }
     else
     {
-        num_col = (num_buttons / buttons_per_row) + 1;
+        free(buf);
+        return TRUE;
     }
+}
 
-    GtkWidget *but[buttons_per_row][num_col];
-
-    int count = 0;
-    for (int i = 0; i < buttons_per_row; i++)
+static gboolean get_css_path()
+{
+    char *buf = malloc(default_size * sizeof(char));
+    if (!buf)
     {
-        for (int j = 0; j < num_col; j++)
-        {
-            but[i][j] = gtk_button_new_with_label(buttons[count].text);
-            gtk_widget_set_name(but[i][j], buttons[count].label);
-            gtk_label_set_yalign(GTK_LABEL(
-                        gtk_bin_get_child(GTK_BIN(but[i][j]))), 0.9);
-            g_signal_connect(but[i][j], "clicked", G_CALLBACK(execute),
-                        buttons[count].action);
-            gtk_widget_set_hexpand(but[i][j], TRUE);
-            gtk_widget_set_vexpand(but[i][j], TRUE);
-            gtk_grid_attach(GTK_GRID(grid), but[i][j], i, j, 1, 1);
-            count++;
-        }
+        fprintf(stderr, "Failed to allocate memory\n");
     }
+    
+    char *config_path = getenv("XDG_CONFIG_HOME");
+    if (!config_path)
+    {
+        config_path = getenv("HOME");
+        int n = snprintf(buf, default_size, "%s/.config", config_path);
+        if (n != 0)
+        {
+            free(buf);
+            buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
+            snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+                    "%s/.config", config_path);
+        }
+        config_path = g_strdup(buf);
+    }
+
+    int n = snprintf(buf, default_size, "%s/wlogout/style.css", config_path);
+    if (n != 0)
+    {
+        free(buf);
+        buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
+        snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+                "%s/wlogout/style.css", config_path);
+    }
+    free(config_path);
+
+    if (css_path)
+    {
+        free(buf);
+        return FALSE;
+    }
+    else if (access(buf, F_OK) != -1)
+    {
+        css_path = g_strdup(buf);
+        free(buf);
+        return FALSE;
+    }
+    else if (access("/etc/wlogout/style.css", F_OK) != -1)
+    {
+        css_path = "/etc/wlogout/style.css";
+        free(buf);
+        return FALSE;
+    }
+    else if (access("/usr/local/etc/wlogout/style.css", F_OK) != -1)
+    {
+        css_path = "/usr/local/etc/wlogout/style.css";
+        free(buf);
+        return FALSE;
+    }
+    else
+    {
+        return TRUE;
+    }
+}
+
+static GtkWidget *get_window()
+{
+    GtkWindow *window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
+    gtk_layer_init_for_window (window);
+    gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
+    gtk_layer_set_exclusive_zone (window, exclusive_level);
+    gtk_layer_set_keyboard_interactivity (window, TRUE);
+
+    for (int i = 0; i < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; i++) {
+        gtk_layer_set_anchor (window, i, TRUE);
+    }
+
+    return GTK_WIDGET(window);
+}
+
+static char *get_substring(char *s, int start, int end, char *buf)
+{
+    memcpy(s, &buf[start], (end - start));
+    s[end - start] = '\0';
+    return s;
 }
 
 static gboolean get_buttons(FILE *json)
@@ -192,6 +308,7 @@ static gboolean get_buttons(FILE *json)
 
     if (numtok < 0)
     {
+        free(tok);
         g_warning("Failed to parse json data\n");
         return TRUE;
     }
@@ -236,7 +353,14 @@ static gboolean get_buttons(FILE *json)
             }
             else if (strcmp(tmp, "keybind") == 0)
             {
-                buttons[num_buttons - 1].bind = buffer[tok[i].start];
+                if (length != 1)
+                {
+                    fprintf(stderr, "Invalid keybind\n");
+                }
+                else
+                {
+                    buttons[num_buttons - 1].bind = buffer[tok[i].start];
+                }
             }
             else
             {
@@ -258,124 +382,75 @@ static gboolean get_buttons(FILE *json)
     return FALSE;
 }
 
-char *get_substring(char *s, int start, int end, char *buf)
+static void execute(GtkWidget *widget, char *action)
 {
-    memcpy(s, &buf[start], (end - start));
-    s[end - start] = '\0';
-    return s;
+    command = malloc(strlen(action) * sizeof(char) + 1);
+    strcpy(command, action);
+    gtk_widget_destroy(gtk_window);
+    gtk_main_quit();
 }
 
-static GtkWidget *get_window()
+static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
-    GtkWindow *window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
-    gtk_layer_init_for_window (window);
-    gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
-    gtk_layer_set_exclusive_zone (window, exclusive_level);
-    gtk_layer_set_keyboard_interactivity (window, TRUE);
-
-    for (int i = 0; i < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; i++) {
-        gtk_layer_set_anchor (window, i, TRUE);
+    if (event->keyval == GDK_KEY_Escape) {
+        gtk_main_quit();
+        return TRUE;
     }
-
-    return GTK_WIDGET(window);
-}
-
-gboolean process_args(int argc, char *argv[])
-{
-    static struct option long_options[] =
+    for (int i = 0; i < num_buttons; i++)
     {
-        {"help", no_argument, NULL, 'h'},
-        {"layout", required_argument, NULL, 'l'},
-        {"version", no_argument, NULL, 'v'},
-        {"css", required_argument, NULL, 'C'},
-        {"margin", required_argument, NULL, 'm'},
-        {"buttons-per-row", required_argument, NULL, 'b'},
-        {0, 0, 0, 0}
-    };
-
-    const char *help =
-        "Usage: wlogout [options]\n"
-        "\n"
-        "   -h, --help              Show help message and stop\n"
-        "   -l, --layout            Specify a layout file\n"
-        "   -v, --version           Show version number and stop\n"
-        "   -C, --css               Specify a css file\n"
-        "   -m, --margin            Set margin around buttons\n"
-        "   -b, --buttons-per-row   Set the number of buttons per row\n"
-        "\n";
-
-    int c;
-    while (TRUE)
-    {
-        int option_index = 0;
-        c = getopt_long(argc, argv, "hl:vc:m:b:", long_options, &option_index);
-        if (c == -1)
+        if (buttons[i].bind == event->keyval)
         {
-            break;
-        }
-        switch (c)
-        {
-            case 'h':
-                g_print(help);
-                return TRUE;
-            case 'l':
-                layout_path = strdup(optarg);
-                break;
-            case 'v':
-                g_print(version);
-                return TRUE;
-            case 'C':
-                css_path = strdup(optarg);
-                break;
-            case 'm':
-                margin = atoi(optarg);
-                break;
-            case 'b':
-                buttons_per_row = atoi(optarg);
-                break;
+            execute(NULL, buttons[i].action);
+            return TRUE;
         }
     }
-    return FALSE;
+    return FALSE; 
 }
 
-gboolean get_layout_path()
+static void load_buttons(GtkWindow *window)
 {
-    if (layout_path)
+    GtkWidget *grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER (window), grid);
+
+    gtk_widget_set_margin_top(grid, margin[0]);
+    gtk_widget_set_margin_bottom(grid, margin[1]);
+    gtk_widget_set_margin_start(grid, margin[2]);
+    gtk_widget_set_margin_end(grid, margin[3]);
+
+    int num_col = 0;
+    if ((num_buttons % buttons_per_row) == 0)
     {
-        return FALSE;
-    }
-    else if (access("/etc/wlogout/layout", F_OK) != -1)
-    {
-        layout_path = "/etc/wlogout/layout";
-        return FALSE;
-    }
-    else if (access("/usr/local/etc/wlogout/layout", F_OK) != -1)
-    {
-        layout_path = "/usr/local/etc/wlogout/layout";
-        return FALSE;
+        num_col = (num_buttons / buttons_per_row);
     }
     else
     {
-        return TRUE;
+        num_col = (num_buttons / buttons_per_row) + 1;
+    }
+
+    GtkWidget *but[buttons_per_row][num_col];
+
+    int count = 0;
+    for (int i = 0; i < buttons_per_row; i++)
+    {
+        for (int j = 0; j < num_col; j++)
+        {
+            but[i][j] = gtk_button_new_with_label(buttons[count].text);
+            gtk_widget_set_name(but[i][j], buttons[count].label);
+            gtk_label_set_yalign(GTK_LABEL(
+                        gtk_bin_get_child(GTK_BIN(but[i][j]))), 0.9);
+            g_signal_connect(but[i][j], "clicked", G_CALLBACK(execute),
+                        buttons[count].action);
+            gtk_widget_set_hexpand(but[i][j], TRUE);
+            gtk_widget_set_vexpand(but[i][j], TRUE);
+            gtk_grid_attach(GTK_GRID(grid), but[i][j], i, j, 1, 1);
+            count++;
+        }
     }
 }
 
 static void load_css()
 {
     GtkCssProvider *css = gtk_css_provider_new();
-
-    if (!css_path)
-    {
-        if (access("/etc/wlogout/style.css", F_OK) != -1)
-        {
-            css_path = "/etc/wlogout/style.css";
-        }
-        else if (access("/usr/local/etc/wlogout/style.css", F_OK) != -1)
-        {
-            css_path = "/usr/local/etc/wlogout/style.css";
-        }
-    }
-
     GError *error = NULL;
     gtk_css_provider_load_from_path(css, css_path, &error);
     if (error)
@@ -385,4 +460,58 @@ static void load_css()
     }
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
             GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_USER);
+}
+
+int main (int argc, char *argv[])
+{
+    buttons = malloc(sizeof(button) * default_size);
+
+    g_set_prgname("wlogout");
+    gtk_init(&argc, &argv);
+    if (process_args(argc, argv))
+    {
+        return 0;
+    }
+
+    if (get_layout_path())
+    {
+        g_warning("Failed to find a layout");
+        return 1;
+    }
+
+    if (get_css_path())
+    {
+        g_warning("Failed to find css file");
+    }
+    
+    FILE *inptr = fopen(layout_path, "r");
+    if (!inptr)
+    {
+        g_warning("Failed to open %s\n", layout_path);
+        return 2;
+    }
+    if (get_buttons(inptr))
+    {
+        fclose(inptr);
+        return 3; 
+    }
+
+    gtk_window = get_window();
+    g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key), NULL);
+
+    load_buttons(GTK_WINDOW(gtk_window));
+    load_css();
+    gtk_widget_show_all(gtk_window);
+
+    gtk_main();
+    system(command);
+
+    for (int i = 0; i < num_buttons; i++)
+    {
+        free(buttons[i].label);
+        free(buttons[i].action);
+        free(buttons[i].text);
+    }
+    free(buttons);
+    free(command);
 }

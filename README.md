@@ -21,6 +21,7 @@ Install dependencies:
 * GTK+  
 * [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) 
 * meson
+* scdoc (optional: man pages)
 * systemd (optional: default buttons)
 * swaylock (optional: default buttons)
 
@@ -37,8 +38,8 @@ sudo ninja -C build install
 - [X] Implement styling via CSS
 - [X] Implement cli arguements
 - [X] Implement keyboard interaction
-- [ ] Create man page
-- [ ] Shell completions
+- [X] Create man page
+- [X] Shell completions
 
 ## License
 Wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)

@@ -1,0 +1,13 @@
+#compdef wlogout
+
+_arguments -s \
+        '(-h --help)'{-h,--help}'[Show help message and stop]' \
+	    '(-v --version)'{-v,--version}'[Show the version number and stop]' \
+        '(-l --layout)'{-l,--layout}'[Specify a config file]:files:_files' \
+        '(-C --css)'{-C,--css}'[Specify a css file]:files:_files' \
+	    '(-b --buttons-per-row)'{-b,--buttons-per-row}'[Set the number of buttons per row]:number:()' \
+	    '(-m --margin)'{-m,--margin}'[Set margin around buttons]:padding:()' \
+	    '(-L --margin-left)'{-L,--margin-left}'[Set margin for left of buttons]:padding:()' \
+        '(-R --margin-right)'{-R,--margin-right}'[Set margin for right of buttons]:padding:()' \
+        '(-T --margin-top)'{-T,--margin-top}'[Set margin for top of buttons]:padding:()' \
+        '(-B --margin-bottom)'{-B,--margin-bottom}'[Set margin for bottom of buttons]:padding:()'
