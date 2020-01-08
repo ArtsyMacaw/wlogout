@@ -38,5 +38,7 @@ sudo ninja -C build install
 - [X] Implement cli arguements
 - [X] Implement keyboard interaction
 - [ ] Create man page
+- [ ] Shell completions
+
 ## License
 Wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)
