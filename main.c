@@ -10,7 +10,7 @@
 
 static const int exclusive_level = 2;
 static const int default_size = 100;
-static const char *version = "Alpha-0.5\n";
+static const char *version = "Stable-1.0.1\n";
 
 typedef struct
 {
