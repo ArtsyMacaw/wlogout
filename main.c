@@ -10,7 +10,7 @@
 
 static const int exclusive_level = 2;
 static const int default_size = 100;
-static const char *version = "Stable-1.0.3\n";
+static const char *version = "Stable-1.0.3";
 
 typedef struct
 {
@@ -67,8 +67,7 @@ static gboolean process_args(int argc, char *argv[])
         "   -L, --margin-left <padding>     Set margin for left of buttons\n"
         "   -R, --margin-right <padding>    Set margin for right of buttons\n"
         "   -T, --margin-top <padding>      Set margin for top of buttons\n"
-        "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n"
-        "\n";
+        "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n";
 
     int c;
     while (TRUE)
