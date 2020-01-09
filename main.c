@@ -10,7 +10,7 @@
 
 static const int exclusive_level = 2;
 static const int default_size = 100;
-static const char *version = "Stable-1.0.1\n";
+static const char *version = "Stable-1.0.2\n";
 
 typedef struct
 {
@@ -107,13 +107,13 @@ static gboolean process_args(int argc, char *argv[])
                 space[0] = atoi(optarg);
                 break;
             case 'h':
-                g_print(help);
+                g_print("%s\n", help);
                 return TRUE;
             case 'l':
                 layout_path = g_strdup(optarg);
                 break;
             case 'v':
-                g_print(version);
+                g_print("%s\n", version);
                 return TRUE;
             case 'C':
                 css_path = g_strdup(optarg);
