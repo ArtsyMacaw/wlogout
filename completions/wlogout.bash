@@ -14,6 +14,8 @@ _wlogout()
         -R
         -T
         -B
+        -r
+        -c
     )
 
     long=(
@@ -27,6 +29,8 @@ _wlogout()
         --margin-right
         --margin-top
         --margin-bottom
+        --column-spacing
+        --row-spacing
     )
 
     case $prev in

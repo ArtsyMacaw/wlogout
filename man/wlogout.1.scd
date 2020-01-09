@@ -25,6 +25,12 @@ wlogout - A Wayland logout menu
 *-b, --buttons-per-row* <num>
 	Set the number of buttons per row
 
+*-c, --column-spacing* <space>
+	Set space between buttons columns
+
+*-r, --row-spacing* <space>
+	Set space between buttons rows
+
 *-m, --margin* <padding>
 	Set margin on all sides
 

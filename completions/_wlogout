@@ -6,6 +6,8 @@ _arguments -s \
         '(-l --layout)'{-l,--layout}'[Specify a config file]:files:_files' \
         '(-C --css)'{-C,--css}'[Specify a css file]:files:_files' \
 	    '(-b --buttons-per-row)'{-b,--buttons-per-row}'[Set the number of buttons per row]:number:()' \
+        '(-c --column-spacing)'{-c,--column-spacing}'[Set space between buttons columns]:space:()' \
+        '(-r --row-spacing)'{-r,--row-spacing}'[Set space between buttons rows]:space:()' \
 	    '(-m --margin)'{-m,--margin}'[Set margin around buttons]:padding:()' \
 	    '(-L --margin-left)'{-L,--margin-left}'[Set margin for left of buttons]:padding:()' \
         '(-R --margin-right)'{-R,--margin-right}'[Set margin for right of buttons]:padding:()' \

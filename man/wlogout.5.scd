@@ -6,26 +6,32 @@ wlogout - layout file and options
 
 # LAYOUT
 
-wlogout's buttons consist of four values
-- label
+wlogout's buttons can consist of upto six values
+- label 
 - action
 - text
 - keybind
+- height \*
+- width \* 
 
-Label is the css selector by which the buttons may be referred to in a *style.css* file. Action is the shell command to be executed when the button is clicked. Text is the description displayed on the button. Keybind is the key mapped to the button; Note escape is reserved for exiting the application.
+\* Optional values
+
+Label is the css selector by which the buttons may be referred to in a *style.css* file, action is the shell command to be executed when the button is clicked, text is the description displayed on the button, keybind is the key mapped to the button (note escape is reserved for exiting the application), and height and width are values between 0.0 and 1.0 that control the location of where *text* is displayed the default width 0.5, height 0.9.
 
 # FILE
 
 The buttons values are specified in a JSON formatted file, wherein the values are used as keys and one button corresponds to one JSON object for example:
 ```
 {
-    "label" : "foo"
-    "action" : "echo 'hello world'"
-    "text" : "bar"
-    "keybind" : "f"
+    "label" : "foo",
+    "action" : "echo 'hello world'",
+    "text" : "bar",
+    "keybind" : "f",
+    "height" : 1, 
+    "width" : 1 
 }
 ```
-Would create a button that has a css label of *foo*, print "hello world" upon being clicked, display "bar" on the button, and be bound to the key 'f'. To create multiple buttons simply create another JSON object.
+Would create a button that has a css label of *foo*, prints "hello world" upon being clicked, displays "bar" on the button, be bound to the key 'f', and "bar" would be shown at the bottom right corner. To create multiple buttons simply create another JSON object.
 
 # AUTHORS
 

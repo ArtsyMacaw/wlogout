@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <gtk/gtk.h>
@@ -16,6 +17,8 @@ typedef struct
     char *label;
     char *action;
     char *text;
+    float yalign;
+    float xalign;
     guint bind;
 } button;
 
@@ -29,6 +32,7 @@ static int num_buttons = 0;
 
 static int buttons_per_row = 3;
 static int margin[] = {230, 230, 230, 230};
+static int space[] = {0, 0};
 
 static gboolean process_args(int argc, char *argv[])
 {
@@ -44,6 +48,8 @@ static gboolean process_args(int argc, char *argv[])
         {"margin-left", required_argument, NULL, 'L'},
         {"margin-right", required_argument, NULL, 'R'},
         {"buttons-per-row", required_argument, NULL, 'b'},
+        {"column-spacing", required_argument, NULL, 'c'},
+        {"row-spacing", required_argument, NULL, 'r'},
         {0, 0, 0, 0}
     };
 
@@ -55,6 +61,8 @@ static gboolean process_args(int argc, char *argv[])
         "   -v, --version                   Show version number and stop\n"
         "   -C, --css <css>                 Specify a css file\n"
         "   -b, --buttons-per-row <num>     Set the number of buttons per row\n"
+        "   -c  --column-spacing <space>    Set space between buttons columns\n"
+        "   -r  --row-spacing <space>       Set space between buttons rows\n"
         "   -m, --margin <padding>          Set margin around buttons\n"
         "   -L, --margin-left <padding>     Set margin for left of buttons\n"
         "   -R, --margin-right <padding>    Set margin for right of buttons\n"
@@ -66,7 +74,7 @@ static gboolean process_args(int argc, char *argv[])
     while (TRUE)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:",
+        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:",
                 long_options, &option_index);
         if (c == -1)
         {
@@ -91,6 +99,12 @@ static gboolean process_args(int argc, char *argv[])
                 break;
             case 'R':
                 margin[3] = atoi(optarg);
+                break;
+            case 'c':
+                space[1] = atoi(optarg);
+                break;
+            case 'r':
+                space[0] = atoi(optarg);
                 break;
             case 'h':
                 g_print(help);
@@ -318,6 +332,8 @@ static gboolean get_buttons(FILE *json)
         if (tok[i].type == JSMN_OBJECT)
         {
             num_buttons++;
+            buttons[num_buttons - 1].yalign = 0.9;
+            buttons[num_buttons - 1].xalign = 0.5;
         }
         else if (tok[i].type == JSMN_STRING)
         {
@@ -360,6 +376,28 @@ static gboolean get_buttons(FILE *json)
                 else
                 {
                     buttons[num_buttons - 1].bind = buffer[tok[i].start];
+                }
+            }
+            else if (strcmp(tmp, "height") == 0)
+            {
+                if (tok[i].type != JSMN_PRIMITIVE || !isdigit(buffer[tok[i].start]))
+                {
+                    fprintf(stderr, "Invalid height\n");
+                }
+                else
+                {
+                    buttons[num_buttons - 1].yalign = buffer[tok[i].start];
+                }
+            }
+            else if (strcmp(tmp, "width") == 0)
+            {
+                if (tok[i].type != JSMN_PRIMITIVE || !isdigit(buffer[tok[i].start]))
+                {
+                    fprintf(stderr, "Invalid height\n");
+                }
+                else
+                {
+                    buttons[num_buttons - 1].xalign = buffer[tok[i].start];
                 }
             }
             else
@@ -412,6 +450,9 @@ static void load_buttons(GtkWindow *window)
     GtkWidget *grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER (window), grid);
 
+    gtk_grid_set_row_spacing(GTK_GRID(grid), space[0]);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), space[1]);
+
     gtk_widget_set_margin_top(grid, margin[0]);
     gtk_widget_set_margin_bottom(grid, margin[1]);
     gtk_widget_set_margin_start(grid, margin[2]);
@@ -437,7 +478,9 @@ static void load_buttons(GtkWindow *window)
             but[i][j] = gtk_button_new_with_label(buttons[count].text);
             gtk_widget_set_name(but[i][j], buttons[count].label);
             gtk_label_set_yalign(GTK_LABEL(
-                        gtk_bin_get_child(GTK_BIN(but[i][j]))), 0.9);
+                        gtk_bin_get_child(GTK_BIN(but[i][j]))), buttons[count].yalign);
+            gtk_label_set_xalign(GTK_LABEL(
+                        gtk_bin_get_child(GTK_BIN(but[i][j]))), buttons[count].xalign);
             g_signal_connect(but[i][j], "clicked", G_CALLBACK(execute),
                         buttons[count].action);
             gtk_widget_set_hexpand(but[i][j], TRUE);
