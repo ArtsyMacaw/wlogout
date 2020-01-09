@@ -16,7 +16,13 @@ Custom buttons can be defined and edited in a layout file. The format is as foll
 Check the default [layout file](layout) for examples and inspiration.
 ## Style
 wlogout can be easily styled through a css file; If you would like to style a button use the label given to it in the layout file, and for other styling refer to the [GTK Manual](https://developer.gnome.org/gtk3/stable/chap-css-properties.html) which shows all the allowed css.
-## Compiling from Source
+## Install
+### archlinux
+Arch users can use [wlogout](https://aur.archlinux.org/packages/wlogout/)
+```
+yay -S wlogout
+```
+### Compiling from Source
 Install dependencies:
 * GTK+  
 * [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) 
