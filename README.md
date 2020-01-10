@@ -28,6 +28,7 @@ yay -S wlogout
 Install dependencies:
 * GTK+  
 * [gtk-layer-shell](https://github.com/wmww/gtk-layer-shell) 
+* GObject introspection
 * meson
 * scdoc (optional: man pages)
 * systemd (optional: default buttons)
