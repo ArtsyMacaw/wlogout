@@ -3,7 +3,9 @@
 > wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell protocol
 ## Running
 Run `wlogout` from within any wayland environment that supports layer shell protocol; Any window manager using [wlroots](https://github.com/swaywm/wlroots) will likely work, as well as an up to date version of KDE
-## Layout
+## Config
+If you editing the default layout and css file it is recommended that you copy `/etc/wlogout/layout` and `/etc/wlogout/style.css` to `~/.config/wlogout/` and change them there.
+### Layout
 Custom buttons can be defined and edited in a layout file. The format is as follows:
 ```
 {
@@ -13,9 +15,9 @@ Custom buttons can be defined and edited in a layout file. The format is as foll
     "keybind" : "character to be bound"
 }
 ```
-Check the default [layout file](layout) for examples and inspiration.
-## Style
-wlogout can be easily styled through a css file; If you would like to style a button use the label given to it in the layout file, and for other styling refer to the [GTK Manual](https://developer.gnome.org/gtk3/stable/chap-css-properties.html) which shows all the allowed css.
+Check the default [layout file](layout) for examples and run `man 5 wlogout` for documentation.
+### Style
+wlogout can be easily styled through the style.css file; If you would like to style a button use the label given to it in the layout file, and for other styling refer to the [GTK Manual](https://developer.gnome.org/gtk3/stable/chap-css-properties.html) which shows all the allowed css.
 ## Install
 ### archlinux
 Arch users can use [wlogout](https://aur.archlinux.org/packages/wlogout/)
