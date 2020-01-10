@@ -2,7 +2,7 @@
 ![Example](example.png)
 > wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments that support the layer shell protocol
 ## Running
-Run `wlogout` from within any wayland environment that supports layer shell protocol; Any window manager using [wlroots](https://github.com/swaywm/wlroots) will likely work, as well as an up to date version of KDE
+Run `wlogout` from within any wayland environment that supports layer shell protocol; Any window manager or desktop environment using [wlroots](https://github.com/swaywm/wlroots) will likely work.
 ## Config
 If you editing the default layout and css file it is recommended that you copy `/etc/wlogout/layout` and `/etc/wlogout/style.css` to `~/.config/wlogout/` and change them there.
 ### Layout
