@@ -8,7 +8,7 @@
 #include <gtk-layer-shell/gtk-layer-shell.h>
 #include "jsmn.h"
 
-static const int exclusive_level = 2;
+static const int exclusive_level = -1;
 static const int default_size = 100;
 static const char *version = "Stable-1.0.3";
 
