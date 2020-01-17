@@ -5,12 +5,10 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <gtk/gtk.h>
-#include <gtk-layer-shell/gtk-layer-shell.h>
 #include "jsmn.h"
 
-static const int exclusive_level = -1;
 static const int default_size = 100;
-static const char *version = "Stable-1.0.3";
+static const char *version = "Stable-1.0.4";
 
 typedef struct
 {
@@ -253,14 +251,8 @@ static gboolean get_css_path()
 static GtkWidget *get_window()
 {
     GtkWindow *window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
-    gtk_layer_init_for_window (window);
-    gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
-    gtk_layer_set_exclusive_zone (window, exclusive_level);
-    gtk_layer_set_keyboard_interactivity (window, TRUE);
 
-    for (int i = 0; i < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; i++) {
-        gtk_layer_set_anchor (window, i, TRUE);
-    }
+    gtk_window_fullscreen(GTK_WINDOW (window));
 
     return GTK_WIDGET(window);
 }

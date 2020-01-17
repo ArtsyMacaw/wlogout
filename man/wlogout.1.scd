@@ -50,7 +50,7 @@ wlogout - A Wayland logout menu
 
 wlogout was created to replace oblogout with a native logout script for Wayland. It also seeks to be a faster alternative that does not rely on depracated technology such as python 2; while maintaining a small code footprint.
 
-You can run wlogout from any Wayland environment that supports the layer-shell protocol
+You can run wlogout from any Wayland environment and it should just work.
 
 # CONFIGURATION
 

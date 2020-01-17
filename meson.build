@@ -1,7 +1,7 @@
 project(
         'wlogout', 
         'c', 
-        version: '1.0.3',
+        version: '1.0.4',
         license: 'MIT',
         default_options:
         [
@@ -65,10 +65,9 @@ if get_option('zsh-completions')
 endif
 
 gtk = dependency('gtk+-wayland-3.0')
-layershell = dependency('gtk-layer-shell-0')
 
 install_subdir('assets', install_dir : datadir / 'wlogout')
 install_subdir('icons', install_dir : datadir / 'wlogout')
 install_data(['layout', 'style.css'], install_dir : sysconfdir / 'wlogout')
 
-executable('wlogout', 'main.c', dependencies : [gtk, layershell], install : true)
+executable('wlogout', 'main.c', dependencies : [gtk], install : true)
