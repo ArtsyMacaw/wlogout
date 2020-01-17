@@ -2,7 +2,7 @@
 ![Example](example.png)
 > wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments
 ## Running
-Run `wlogout` from within any wayland environment.
+Run `wlogout` to launch and `Escape` to exit.
 ## Config
 If you editing the default layout and css file it is recommended that you copy `/etc/wlogout/layout` and `/etc/wlogout/style.css` to `~/.config/wlogout/` and change them there.
 ### Layout
@@ -26,7 +26,8 @@ yay -S wlogout
 ```
 ### Compiling from Source
 Install dependencies:
-* GTK+  
+* GTK+ 
+* GObject introspection
 * meson
 * scdoc (optional: man pages)
 * systemd (optional: default buttons)
