@@ -29,6 +29,7 @@ Install dependencies:
 * GTK+ 
 * GObject introspection
 * meson
+* gtk-layer-shell (optional: transperancy)
 * scdoc (optional: man pages)
 * systemd (optional: default buttons)
 * swaylock (optional: default buttons)
