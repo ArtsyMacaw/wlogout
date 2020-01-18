@@ -154,6 +154,7 @@ static gboolean get_layout_path()
         snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
                 "%s/wlogout/layout", config_path);
     }
+    free(config_path);
 
     if (layout_path)
     {
@@ -216,6 +217,7 @@ static gboolean get_css_path()
         snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
                 "%s/wlogout/style.css", config_path);
     }
+    free(config_path);
 
     if (css_path)
     {
@@ -236,6 +238,8 @@ static gboolean get_css_path()
     }
     else if (access("/usr/local/etc/wlogout/style.css", F_OK) != -1)
     {
+        css_path = "/usr/local/etc/wlogout/style.css";
+        free(buf);
         return FALSE;
     }
     else
