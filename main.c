@@ -24,6 +24,7 @@ typedef struct
     float yalign;
     float xalign;
     guint bind;
+    gboolean circular;
 } button;
 
 static char *command = NULL;
@@ -152,9 +153,8 @@ static gboolean get_layout_path()
         fprintf(stderr, "Failed to allocate memory\n");
     }
 
-    char *config_path = malloc(default_size * sizeof(char));
-    char *xdg_config_home = getenv("XDG_CONFIG_HOME");
-    strcpy(config_path, xdg_config_home);
+    char *tmp = getenv("XDG_CONFIG_HOME");
+    char *config_path = g_strdup(tmp);
     if (!config_path)
     {
         config_path = getenv("HOME");
@@ -217,9 +217,8 @@ static gboolean get_css_path()
         fprintf(stderr, "Failed to allocate memory\n");
     }
 
-    char *config_path = malloc(default_size * sizeof(char));
-    char *xdg_config_home = getenv("XDG_CONFIG_HOME");
-    strcpy(config_path, xdg_config_home);
+    char *tmp = getenv("XDG_CONFIG_HOME");
+    char *config_path = g_strdup(tmp);
     if (!config_path)
     {
         config_path = getenv("HOME");
@@ -367,6 +366,7 @@ static gboolean get_buttons(FILE *json)
             num_buttons++;
             buttons[num_buttons - 1].yalign = 0.9;
             buttons[num_buttons - 1].xalign = 0.5;
+            buttons[num_buttons - 1].circular = FALSE;
         }
         else if (tok[i].type == JSMN_STRING)
         {
@@ -431,6 +431,22 @@ static gboolean get_buttons(FILE *json)
                 else
                 {
                     buttons[num_buttons - 1].xalign = buffer[tok[i].start];
+                }
+            }
+            else if (strcmp(tmp, "circular") == 0)
+            {
+                if (tok[i].type != JSMN_PRIMITIVE)
+                {
+                    fprintf(stderr, "Invalid height\n");
+                }
+                else
+                {
+                    if (buffer[tok[i].start] == 't') {
+                        buttons[num_buttons - 1].circular = TRUE;
+                    }
+                    else {
+                        buttons[num_buttons - 1].circular = FALSE;
+                    }
                 }
             }
             else
@@ -514,6 +530,10 @@ static void load_buttons(GtkWindow *window)
                         gtk_bin_get_child(GTK_BIN(but[i][j]))), buttons[count].yalign);
             gtk_label_set_xalign(GTK_LABEL(
                         gtk_bin_get_child(GTK_BIN(but[i][j]))), buttons[count].xalign);
+            if (buttons[count].circular) {
+                gtk_style_context_add_class(
+                    gtk_widget_get_style_context(but[i][j]), "circular");
+            }
             g_signal_connect(but[i][j], "clicked", G_CALLBACK(execute),
                         buttons[count].action);
             gtk_widget_set_hexpand(but[i][j], TRUE);
