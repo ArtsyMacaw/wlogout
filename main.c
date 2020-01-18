@@ -130,8 +130,10 @@ static gboolean get_layout_path()
     {
         fprintf(stderr, "Failed to allocate memory\n");
     }
-    
-    char *config_path = getenv("XDG_CONFIG_HOME");
+
+    char *config_path = malloc(default_size * sizeof(char));
+    char *xdg_config_home = getenv("XDG_CONFIG_HOME");
+    strcpy(config_path, xdg_config_home);
     if (!config_path)
     {
         config_path = getenv("HOME");
@@ -193,8 +195,10 @@ static gboolean get_css_path()
     {
         fprintf(stderr, "Failed to allocate memory\n");
     }
-    
-    char *config_path = getenv("XDG_CONFIG_HOME");
+
+    char *config_path = malloc(default_size * sizeof(char));
+    char *xdg_config_home = getenv("XDG_CONFIG_HOME");
+    strcpy(config_path, xdg_config_home);
     if (!config_path)
     {
         config_path = getenv("HOME");
