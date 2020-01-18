@@ -6,9 +6,15 @@
 #include <getopt.h>
 #include <gtk/gtk.h>
 #include "jsmn.h"
+#ifdef LAYERSHELL
+#include <gtk-layer-shell/gtk-layer-shell.h>
+#endif
 
+#ifdef LAYERSHELL
+static const int exclusive_level = -1;
+#endif
 static const int default_size = 100;
-static const char *version = "Stable-1.0.4";
+static const char *version = "1.0.4";
 
 typedef struct
 {
@@ -31,6 +37,7 @@ static int num_buttons = 0;
 static int buttons_per_row = 3;
 static int margin[] = {230, 230, 230, 230};
 static int space[] = {0, 0};
+static gboolean protocol = TRUE;
 
 static gboolean process_args(int argc, char *argv[])
 {
@@ -48,6 +55,7 @@ static gboolean process_args(int argc, char *argv[])
         {"buttons-per-row", required_argument, NULL, 'b'},
         {"column-spacing", required_argument, NULL, 'c'},
         {"row-spacing", required_argument, NULL, 'r'},
+        {"protocol", required_argument, NULL, 'p'},
         {0, 0, 0, 0}
     };
 
@@ -65,13 +73,14 @@ static gboolean process_args(int argc, char *argv[])
         "   -L, --margin-left <padding>     Set margin for left of buttons\n"
         "   -R, --margin-right <padding>    Set margin for right of buttons\n"
         "   -T, --margin-top <padding>      Set margin for top of buttons\n"
-        "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n";
+        "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n"
+        "   -p, --protocol <protocol>       Use layer-shell or xdg protocol\n";
 
     int c;
     while (TRUE)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:",
+        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:",
                 long_options, &option_index);
         if (c == -1)
         {
@@ -117,6 +126,18 @@ static gboolean process_args(int argc, char *argv[])
                 break;
             case 'b':
                 buttons_per_row = atoi(optarg);
+                break;
+            case 'p':
+                if (strcmp("layer-shell", optarg) == 0) {
+                    protocol = FALSE;
+                }
+                else if (strcmp("xdg", optarg) == 0) {
+                    protocol = TRUE;
+                }
+                else {
+                    g_print("%s is an invalid protocol\n", optarg);
+                    return TRUE;
+                }
                 break;
         }
     }
@@ -256,7 +277,24 @@ static GtkWidget *get_window()
 {
     GtkWindow *window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
 
-    gtk_window_fullscreen(GTK_WINDOW (window));
+    if (protocol) {
+        gtk_window_fullscreen(GTK_WINDOW (window));
+    }
+    else {
+        #ifdef LAYERSHELL
+        gtk_layer_init_for_window (window);
+        gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
+        gtk_layer_set_exclusive_zone (window, exclusive_level);
+        gtk_layer_set_keyboard_interactivity (window, TRUE);
+
+        for (int i = 0; i < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; i++) {
+            gtk_layer_set_anchor (window, i, TRUE);
+        }
+        #else
+        printf("wlogout was not compiled with layer shell support\n");
+        gtk_window_fullscreen(GTK_WINDOW (window));
+        #endif
+    }
 
     return GTK_WIDGET(window);
 }
