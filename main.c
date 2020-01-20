@@ -355,7 +355,7 @@ static gboolean get_buttons(FILE *json)
     if (numtok < 0)
     {
         free(tok);
-        g_warning("Failed to parse json data\n");
+        g_warning("Failed to parse JSON data\n");
         return TRUE;
     }
     
@@ -426,7 +426,7 @@ static gboolean get_buttons(FILE *json)
             {
                 if (tok[i].type != JSMN_PRIMITIVE || !isdigit(buffer[tok[i].start]))
                 {
-                    fprintf(stderr, "Invalid height\n");
+                    fprintf(stderr, "Invalid width\n");
                 }
                 else
                 {
@@ -437,7 +437,7 @@ static gboolean get_buttons(FILE *json)
             {
                 if (tok[i].type != JSMN_PRIMITIVE)
                 {
-                    fprintf(stderr, "Invalid height\n");
+                    fprintf(stderr, "Invalid boolean\n");
                 }
                 else
                 {
@@ -571,13 +571,13 @@ int main (int argc, char *argv[])
 
     if (get_layout_path())
     {
-        g_warning("Failed to find a layout");
+        g_warning("Failed to find a layout\n");
         return 1;
     }
 
     if (get_css_path())
     {
-        g_warning("Failed to find css file");
+        g_warning("Failed to find css file\n");
     }
     
     FILE *inptr = fopen(layout_path, "r");
