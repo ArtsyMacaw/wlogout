@@ -358,7 +358,7 @@ static gboolean get_buttons(FILE *json)
         g_warning("Failed to parse JSON data\n");
         return TRUE;
     }
-    
+
     for (int i = 0; i < numtok; i++)
     {
         if (tok[i].type == JSMN_OBJECT)
@@ -491,7 +491,7 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
             return TRUE;
         }
     }
-    return FALSE; 
+    return FALSE;
 }
 
 static void load_buttons(GtkWindow *window)
@@ -579,7 +579,7 @@ int main (int argc, char *argv[])
     {
         g_warning("Failed to find css file\n");
     }
-    
+
     FILE *inptr = fopen(layout_path, "r");
     if (!inptr)
     {
@@ -589,7 +589,7 @@ int main (int argc, char *argv[])
     if (get_buttons(inptr))
     {
         fclose(inptr);
-        return 3; 
+        return 3;
     }
 
     gtk_window = get_window();
