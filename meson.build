@@ -22,7 +22,7 @@ add_project_arguments(
 datadir = get_option('datadir')
 sysconfdir = get_option('sysconfdir')
 
-scdoc = dependency('scdoc', required: get_option('man-pages'))
+scdoc = dependency('scdoc', native: true, required: get_option('man-pages'))
 if scdoc.found()
   scdoc_prog = find_program(scdoc.get_pkgconfig_variable('scdoc'), native: true)
   sh = find_program('sh', native: true)
