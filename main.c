@@ -14,7 +14,7 @@
 static const int exclusive_level = -1;
 #endif
 static const int default_size = 100;
-static const char *version = "1.1";
+static const char *version = "1.1.1";
 
 typedef struct
 {
