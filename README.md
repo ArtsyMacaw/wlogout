@@ -24,6 +24,10 @@ Arch users can use [wlogout](https://aur.archlinux.org/packages/wlogout/)
 ```
 yay -S wlogout
 ```
+### Void Linux
+```
+xbps-install wlogout
+```
 ### Compiling from Source
 Install dependencies:
 * GTK+ 
