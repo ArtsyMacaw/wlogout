@@ -494,10 +494,15 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
     return FALSE;
 }
 
-static void load_buttons(GtkWindow *window)
+static gboolean background_clicked(GtkWidget *widget, GdkEventButton event, gpointer user_data) {
+    gtk_main_quit();
+    return TRUE;
+}
+
+static void load_buttons(GtkContainer *container)
 {
     GtkWidget *grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER (window), grid);
+    gtk_container_add(container, grid);
 
     gtk_grid_set_row_spacing(GTK_GRID(grid), space[0]);
     gtk_grid_set_column_spacing(GTK_GRID(grid), space[1]);
@@ -595,7 +600,12 @@ int main (int argc, char *argv[])
     gtk_window = get_window();
     g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key), NULL);
 
-    load_buttons(GTK_WINDOW(gtk_window));
+    // add event box to exit when clicking the background
+    GtkWidget *box = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(gtk_window), box);
+    g_signal_connect(box, "button-press-event", G_CALLBACK(background_clicked), NULL);
+
+    load_buttons(GTK_CONTAINER(box));
     load_css();
     gtk_widget_show_all(gtk_window);
 
