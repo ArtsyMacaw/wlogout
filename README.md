@@ -1,5 +1,3 @@
-# THIS IS NO LONGER MAINTAINED
-Consider using an alternative like [wleave](https://github.com/AMNatty/wleave)
 # wlogout
 ![Example](example.png)
 > wlogout is a logout menu for [wayland](https://wayland.freedesktop.org/) environments
