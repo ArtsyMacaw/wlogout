@@ -81,7 +81,7 @@ static gboolean process_args(int argc, char *argv[])
     while (TRUE)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:",
+        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:C:",
                 long_options, &option_index);
         if (c == -1)
         {
