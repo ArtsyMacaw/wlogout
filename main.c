@@ -283,6 +283,7 @@ static GtkWidget *get_window()
         #ifdef LAYERSHELL
         gtk_layer_init_for_window (window);
         gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
+        gtk_layer_set_namespace (window, "logout_dialog");
         gtk_layer_set_exclusive_zone (window, exclusive_level);
         gtk_layer_set_keyboard_interactivity (window, TRUE);
 
