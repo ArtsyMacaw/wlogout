@@ -130,10 +130,10 @@ static gboolean process_args(int argc, char *argv[])
                 break;
             case 'p':
                 if (strcmp("layer-shell", optarg) == 0) {
-                    protocol = FALSE;
+                    protocol = TRUE;
                 }
                 else if (strcmp("xdg", optarg) == 0) {
-                    protocol = TRUE;
+                    protocol = FALSE;
                 }
                 else {
                     g_print("%s is an invalid protocol\n", optarg);
@@ -276,10 +276,7 @@ static GtkWidget *get_window()
 {
     GtkWindow *window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
 
-    if (protocol) {
-        gtk_window_fullscreen(GTK_WINDOW (window));
-    }
-    else {
+    if (protocol && gtk_layer_is_supported()) {
         #ifdef LAYERSHELL
         gtk_layer_init_for_window (window);
         gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
@@ -294,6 +291,9 @@ static GtkWidget *get_window()
         printf("wlogout was not compiled with layer shell support\n");
         gtk_window_fullscreen(GTK_WINDOW (window));
         #endif
+    }
+    else {
+        gtk_window_fullscreen(GTK_WINDOW (window));
     }
 
     return GTK_WIDGET(window);
