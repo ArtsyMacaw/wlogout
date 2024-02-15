@@ -6,7 +6,7 @@ wlogout - layout file and options
 
 # LAYOUT
 
-wlogout's buttons can consist of upto six values
+wlogout's buttons can consist of up to six values
 - label
 - action
 - text
