@@ -50,7 +50,7 @@ wlogout - A Wayland logout menu
 	Takes either layer-shell or xdg. The layer-shell allows transparency effects; however, only a few compositors correctly support it. The xdg protocol will work on almost all compositors, but does not allow for transparency.
 
 *-s, --show-binds*
-    Will show the keybinds of a button by inserting the key needed to activate the button next to its label.
+	Will show the keybinds of a button by inserting the key needed to activate the button next to its label.
 
 # DESCRIPTION
 
