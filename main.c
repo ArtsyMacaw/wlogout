@@ -39,6 +39,7 @@ static int buttons_per_row = 3;
 static int margin[] = {230, 230, 230, 230};
 static int space[] = {0, 0};
 static gboolean protocol = TRUE;
+static gboolean show_bind = FALSE;
 
 static gboolean process_args(int argc, char *argv[])
 {
@@ -57,6 +58,7 @@ static gboolean process_args(int argc, char *argv[])
         {"column-spacing", required_argument, NULL, 'c'},
         {"row-spacing", required_argument, NULL, 'r'},
         {"protocol", required_argument, NULL, 'p'},
+        {"show-binds", no_argument, NULL, 's'},
         {0, 0, 0, 0}
     };
 
@@ -75,13 +77,14 @@ static gboolean process_args(int argc, char *argv[])
         "   -R, --margin-right <padding>    Set margin for right of buttons\n"
         "   -T, --margin-top <padding>      Set margin for top of buttons\n"
         "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n"
-        "   -p, --protocol <protocol>       Use layer-shell or xdg protocol\n";
+        "   -p, --protocol <protocol>       Use layer-shell or xdg protocol\n"
+        "   -s, --show-binds                Show the keybinds on their corresponding button\n";
 
     int c;
     while (TRUE)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:",
+        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:C:s",
                 long_options, &option_index);
         if (c == -1)
         {
@@ -130,15 +133,18 @@ static gboolean process_args(int argc, char *argv[])
                 break;
             case 'p':
                 if (strcmp("layer-shell", optarg) == 0) {
-                    protocol = FALSE;
+                    protocol = TRUE;
                 }
                 else if (strcmp("xdg", optarg) == 0) {
-                    protocol = TRUE;
+                    protocol = FALSE;
                 }
                 else {
                     g_print("%s is an invalid protocol\n", optarg);
                     return TRUE;
                 }
+                break;
+            case 's':
+                show_bind = TRUE;
                 break;
         }
     }
@@ -276,13 +282,11 @@ static GtkWidget *get_window()
 {
     GtkWindow *window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
 
-    if (protocol) {
-        gtk_window_fullscreen(GTK_WINDOW (window));
-    }
-    else {
+    if (protocol && gtk_layer_is_supported()) {
         #ifdef LAYERSHELL
         gtk_layer_init_for_window (window);
         gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
+        gtk_layer_set_namespace (window, "logout_dialog");
         gtk_layer_set_exclusive_zone (window, exclusive_level);
         gtk_layer_set_keyboard_interactivity (window, TRUE);
 
@@ -293,6 +297,9 @@ static GtkWidget *get_window()
         printf("wlogout was not compiled with layer shell support\n");
         gtk_window_fullscreen(GTK_WINDOW (window));
         #endif
+    }
+    else {
+        gtk_window_fullscreen(GTK_WINDOW (window));
     }
 
     return GTK_WIDGET(window);
@@ -380,8 +387,12 @@ static gboolean get_buttons(FILE *json)
             {
                 char buf[length + 1];
                 get_substring(buf, tok[i].start, tok[i].end, buffer);
-                buttons[num_buttons - 1].label = malloc(sizeof(char)
-                        * length + 1);
+
+                /* Add a small buffer to allocated memory so the keybind
+                 * can easily be concatenated later if needed */
+                int keybind_buffer = sizeof(guint) + (sizeof(char) * 2);
+                buttons[num_buttons - 1].label = malloc((sizeof(char)
+                        * (length + 1)) + keybind_buffer);
                 strcpy(buttons[num_buttons - 1].label, buf);
             }
             else if (strcmp(tmp, "action") == 0)
@@ -494,10 +505,15 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
     return FALSE;
 }
 
-static void load_buttons(GtkWindow *window)
+static gboolean background_clicked(GtkWidget *widget, GdkEventButton event, gpointer user_data) {
+    gtk_main_quit();
+    return TRUE;
+}
+
+static void load_buttons(GtkContainer *container)
 {
     GtkWidget *grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER (window), grid);
+    gtk_container_add(container, grid);
 
     gtk_grid_set_row_spacing(GTK_GRID(grid), space[0]);
     gtk_grid_set_column_spacing(GTK_GRID(grid), space[1]);
@@ -524,6 +540,12 @@ static void load_buttons(GtkWindow *window)
     {
         for (int j = 0; j < num_col; j++)
         {
+            if (show_bind)
+            {
+                strcat(buttons[count].text, "[");
+                strcat(buttons[count].text, (char *) &buttons[count].bind);
+                strcat(buttons[count].text, "]");
+            }
             but[i][j] = gtk_button_new_with_label(buttons[count].text);
             gtk_widget_set_name(but[i][j], buttons[count].label);
             gtk_label_set_yalign(GTK_LABEL(
@@ -595,7 +617,12 @@ int main (int argc, char *argv[])
     gtk_window = get_window();
     g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key), NULL);
 
-    load_buttons(GTK_WINDOW(gtk_window));
+    // add event box to exit when clicking the background
+    GtkWidget *box = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(gtk_window), box);
+    g_signal_connect(box, "button-press-event", G_CALLBACK(background_clicked), NULL);
+
+    load_buttons(GTK_CONTAINER(box));
     load_css();
     gtk_widget_show_all(gtk_window);
 
