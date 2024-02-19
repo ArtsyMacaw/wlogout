@@ -387,12 +387,8 @@ static gboolean get_buttons(FILE *json)
             {
                 char buf[length + 1];
                 get_substring(buf, tok[i].start, tok[i].end, buffer);
-
-                /* Add a small buffer to allocated memory so the keybind
-                 * can easily be concatenated later if needed */
-                int keybind_buffer = sizeof(guint) + (sizeof(char) * 2);
-                buttons[num_buttons - 1].label = malloc((sizeof(char)
-                        * (length + 1)) + keybind_buffer);
+                buttons[num_buttons - 1].label = malloc(sizeof(char)
+                        * (length + 1));
                 strcpy(buttons[num_buttons - 1].label, buf);
             }
             else if (strcmp(tmp, "action") == 0)
@@ -407,8 +403,11 @@ static gboolean get_buttons(FILE *json)
             {
                 char buf[length + 1];
                 get_substring(buf, tok[i].start, tok[i].end, buffer);
-                buttons[num_buttons - 1].text = malloc(sizeof(char)
-                        * length + 1);
+                /* Add a small buffer to allocated memory so the keybind
+                 * can easily be concatenated later if needed */
+                int keybind_buffer = sizeof(guint) + (sizeof(char) * 2);
+                buttons[num_buttons - 1].text = malloc((sizeof(char)
+                        * (length + 1)) + keybind_buffer);
                 strcpy(buttons[num_buttons - 1].text, buf);
             }
             else if (strcmp(tmp, "keybind") == 0)
