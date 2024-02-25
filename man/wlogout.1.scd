@@ -52,6 +52,12 @@ wlogout - A Wayland logout menu
 *-s, --show-binds*
 	Will show the keybinds of a button by inserting the key needed to activate the button next to its label.
 
+*-P, --primary-monitor* <num>
+	Select the monitor to display buttons on; Monitors are numbered from 0 up.
+
+*-n, --no-span*
+	Stops wlogout from spanning across multiple monitors, can be combined with `--primary-monitor` to only appear on one monitor.
+
 # DESCRIPTION
 
 wlogout was created to replace oblogout with a native logout script for Wayland. It also seeks to be a faster alternative that does not rely on deprecated technology such as python 2; while maintaining a small code footprint.

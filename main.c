@@ -36,10 +36,12 @@ static GtkWidget *gtk_window = NULL;
 static int num_buttons = 0;
 
 static int buttons_per_row = 3;
+static int primary_monitor = 0;
 static int margin[] = {230, 230, 230, 230};
 static int space[] = {0, 0};
 static gboolean protocol = TRUE;
 static gboolean show_bind = FALSE;
+static gboolean no_span = FALSE;
 
 static gboolean process_args(int argc, char *argv[])
 {
@@ -59,6 +61,8 @@ static gboolean process_args(int argc, char *argv[])
         {"row-spacing", required_argument, NULL, 'r'},
         {"protocol", required_argument, NULL, 'p'},
         {"show-binds", no_argument, NULL, 's'},
+        {"no-span", no_argument, NULL, 'n'},
+        {"primary-monitor", required_argument, NULL, 'P'},
         {0, 0, 0, 0}
     };
 
@@ -78,13 +82,15 @@ static gboolean process_args(int argc, char *argv[])
         "   -T, --margin-top <padding>      Set margin for top of buttons\n"
         "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n"
         "   -p, --protocol <protocol>       Use layer-shell or xdg protocol\n"
-        "   -s, --show-binds                Show the keybinds on their corresponding button\n";
+        "   -s, --show-binds                Show the keybinds on their corresponding button\n"
+        "   -n, --no-span                   Stops from spanning across multiple monitors\n"
+        "   -P, --primary-monitor <num>     Set the monitor that buttons appear on\n";
 
     int c;
     while (TRUE)
     {
         int option_index = 0;
-        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:C:s",
+        c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:C:sP:n",
                 long_options, &option_index);
         if (c == -1)
         {
@@ -145,6 +151,12 @@ static gboolean process_args(int argc, char *argv[])
                 break;
             case 's':
                 show_bind = TRUE;
+                break;
+            case 'P':
+                primary_monitor = atoi(optarg);
+                break;
+            case 'n':
+                no_span = TRUE;
                 break;
         }
     }
@@ -278,31 +290,72 @@ static gboolean get_css_path()
     }
 }
 
+static gboolean background_clicked(GtkWidget *widget, GdkEventButton event, gpointer user_data) {
+    gtk_main_quit();
+    return TRUE;
+}
+
 static GtkWidget *get_window()
 {
-    GtkWindow *window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
+    GdkDisplay *display = gdk_display_get_default();
+    int num_of_monitors = gdk_display_get_n_monitors(display);
+    GtkWindow **window = malloc(num_of_monitors * sizeof(GtkWindow *));
+    GtkWidget **box = malloc(num_of_monitors * sizeof(GtkWidget *));
 
-    if (protocol && gtk_layer_is_supported()) {
+    for (int i = 0; i < num_of_monitors; i++)
+    {
+        window[i] = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
+        box[i] = gtk_event_box_new();
+    }
+    
+    GdkScreen *screen = gdk_screen_get_default();
+    gboolean layershell = FALSE;
+    gint monitor = primary_monitor;
+
+    #ifdef LAYERSHELL
+    layershell = gtk_layer_is_supported();
+    #else
+    printf("wlogout was not compiled with layer shell support\n");
+    #endif
+
+    if (protocol && layershell) {
         #ifdef LAYERSHELL
-        gtk_layer_init_for_window (window);
-        gtk_layer_set_layer (window, GTK_LAYER_SHELL_LAYER_OVERLAY);
-        gtk_layer_set_namespace (window, "logout_dialog");
-        gtk_layer_set_exclusive_zone (window, exclusive_level);
-        gtk_layer_set_keyboard_interactivity (window, TRUE);
+        GdkMonitor **monitors = malloc(num_of_monitors * sizeof(GdkMonitor *));
+        for (int i = 0; i < num_of_monitors; i++)
+        {
+            monitors[i] = gdk_display_get_monitor(display, i);
+            gtk_layer_init_for_window (window[i]);
+            gtk_layer_set_layer (window[i], GTK_LAYER_SHELL_LAYER_OVERLAY);
+            gtk_layer_set_exclusive_zone (window[i], exclusive_level);
 
-        for (int i = 0; i < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; i++) {
-            gtk_layer_set_anchor (window, i, TRUE);
+            for (int j = 0; j < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; j++) {
+                gtk_layer_set_anchor (window[i], j, TRUE);
+            }
+            gtk_layer_set_monitor(window[i], monitors[i]);
         }
-        #else
-        printf("wlogout was not compiled with layer shell support\n");
-        gtk_window_fullscreen(GTK_WINDOW (window));
+
+        gtk_layer_set_keyboard_interactivity (window[monitor], TRUE);
         #endif
     }
     else {
-        gtk_window_fullscreen(GTK_WINDOW (window));
+        for (int i = 0; i < num_of_monitors; i++)
+        {
+            gtk_window_fullscreen_on_monitor(window[i], screen, i);
+        }
     }
 
-    return GTK_WIDGET(window);
+    for (int i = 0; i < num_of_monitors; i++)
+    {
+        if (i != primary_monitor && !no_span)
+        {
+            // add event box to exit when clicking the background
+            gtk_container_add(GTK_CONTAINER(window[i]), box[i]);
+            g_signal_connect(box[i], "button-press-event", G_CALLBACK(background_clicked), NULL);
+            gtk_widget_show_all(GTK_WIDGET(window[i]));
+        }
+    }
+
+    return GTK_WIDGET(window[monitor]);
 }
 
 static char *get_substring(char *s, int start, int end, char *buf)
@@ -504,11 +557,6 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
     return FALSE;
 }
 
-static gboolean background_clicked(GtkWidget *widget, GdkEventButton event, gpointer user_data) {
-    gtk_main_quit();
-    return TRUE;
-}
-
 static void load_buttons(GtkContainer *container)
 {
     GtkWidget *grid = gtk_grid_new();
@@ -616,7 +664,6 @@ int main (int argc, char *argv[])
     gtk_window = get_window();
     g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key), NULL);
 
-    // add event box to exit when clicking the background
     GtkWidget *box = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(gtk_window), box);
     g_signal_connect(box, "button-press-event", G_CALLBACK(background_clicked), NULL);
@@ -624,6 +671,7 @@ int main (int argc, char *argv[])
     load_buttons(GTK_CONTAINER(box));
     load_css();
     gtk_widget_show_all(gtk_window);
+    
 
     gtk_main();
     system(command);
