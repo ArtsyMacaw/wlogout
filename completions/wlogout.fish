@@ -12,3 +12,5 @@ complete -c wlogout -s B -l margin-bottom -r -d "Set margin for bottom of button
 complete -c wlogout -s r -l row-spacing -r -d "Set space between buttons rows"
 complete -c wlogout -s c -l column-spacing -r -d "Set space between buttons columns"
 complete -c wlogout -s p -l protocol -r -d "Use layer-shell or xdg protocol"
+complete -c wlogout -s n -l no-span -d "Stops from spanning across multiple monitors"
+complete -c wlogout -s P -l primary-monitor -r -d "Set the monitor that buttons appear on"

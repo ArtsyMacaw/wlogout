@@ -17,6 +17,8 @@ _wlogout()
         -r
         -c
         -p
+        -P
+        -n
     )
 
     long=(
@@ -33,6 +35,8 @@ _wlogout()
         --column-spacing
         --row-spacing
         --protocol
+        --no-span
+        --primary-monitor
     )
 
     case $prev in

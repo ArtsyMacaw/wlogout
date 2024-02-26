@@ -13,4 +13,6 @@ _arguments -s \
         '(-R --margin-right)'{-R,--margin-right}'[Set margin for right of buttons]:padding:()' \
         '(-T --margin-top)'{-T,--margin-top}'[Set margin for top of buttons]:padding:()' \
         '(-B --margin-bottom)'{-B,--margin-bottom}'[Set margin for bottom of buttons]:padding:()' \
-        '(-p --protocol)'{-p,--protocol}'[Use layer-shell or xdg protocol]:protocol:()'
+        '(-p --protocol)'{-p,--protocol}'[Use layer-shell or xdg protocol]:protocol:()' \
+        '(-n --no-span)'{-n,--no-span}'[Stops from spanning across multiple monitors]' \
+        '(-P --primary-monitor)'{-P,--primary-monitor}'[Set the monitor that buttons appear on]:monitor-number:()'
