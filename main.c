@@ -307,7 +307,7 @@ static GtkWidget *get_window()
         window[i] = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
         box[i] = gtk_event_box_new();
     }
-    
+
     GdkScreen *screen = gdk_screen_get_default();
     gboolean layershell = FALSE;
     gint monitor = primary_monitor;
@@ -671,7 +671,6 @@ int main (int argc, char *argv[])
     load_buttons(GTK_CONTAINER(box));
     load_css();
     gtk_widget_show_all(gtk_window);
-    
 
     gtk_main();
     system(command);
