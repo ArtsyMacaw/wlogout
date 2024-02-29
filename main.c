@@ -606,7 +606,7 @@ static void load_buttons(GtkContainer *container)
     {
         for (int j = 0; j < num_col; j++)
         {
-            if (show_bind)
+            if (buttons[count].text && show_bind)
             {
                 strcat(buttons[count].text, "[");
                 strcat(buttons[count].text, (char *) &buttons[count].bind);
