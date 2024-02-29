@@ -10,6 +10,7 @@ window {
 button {
     border-radius: 0;
     border-color: black;
+	text-decoration-color: #FFFFFF;
     color: #FFFFFF;
 	background-color: #1E1E1E;
 	border-style: solid;
