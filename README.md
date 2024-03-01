@@ -33,13 +33,12 @@ yay -S wlogout
 Install "wlogout" with your distro's package manager.
 ### Compiling from Source
 Install dependencies:
-* GTK+ 
+* GTK+
 * GObject introspection
 * meson
 * gtk-layer-shell (optional: transperancy)
 * scdoc (optional: man pages)
 * systemd (optional: default buttons)
-* swaylock (optional: default buttons)
 
 Run these commands:
 ```
