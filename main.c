@@ -34,6 +34,8 @@ static button *buttons = NULL;
 static GtkWidget *gtk_window = NULL;
 static int num_buttons = 0;
 static int draw = 0;
+static int num_of_monitors = 0;
+static GtkWindow **window = NULL;
 static int buttons_per_row = 3;
 static int primary_monitor = -1;
 static int margin[] = {230, 230, 230, 230};
@@ -290,7 +292,15 @@ static gboolean get_css_path()
     }
 }
 
-static gboolean background_clicked(GtkWidget *widget, GdkEventButton event, gpointer user_data) {
+static gboolean background_clicked(GtkWidget *widget, GdkEventButton event, gpointer user_data)
+{
+    for(int i = 0; i < num_of_monitors; i++)
+    {
+        if (i != primary_monitor)
+        {
+            gtk_widget_destroy(GTK_WIDGET(window[i]));
+        }
+    }
     gtk_main_quit();
     return TRUE;
 }
@@ -474,6 +484,13 @@ static void execute(GtkWidget *widget, char *action)
     command = malloc(strlen(action) * sizeof(char) + 1);
     strcpy(command, action);
     gtk_widget_destroy(gtk_window);
+    for(int i = 0; i < num_of_monitors; i++)
+    {
+        if (i != primary_monitor)
+        {
+            gtk_widget_destroy(GTK_WIDGET(window[i]));
+        }
+    }
     gtk_main_quit();
 }
 
@@ -539,8 +556,8 @@ static void get_monitor(GtkWidget *widget, GdkEventKey *event, gpointer data)
     GdkDisplay *display = gdk_display_get_default();
     GdkMonitor *active_monitor = 
                     gdk_display_get_monitor_at_window(display, gtk_widget_get_window(gtk_window));
-    int num_of_monitors = gdk_display_get_n_monitors(display);
-    GtkWindow **window = malloc(num_of_monitors * sizeof(GtkWindow *));
+    num_of_monitors = gdk_display_get_n_monitors(display);
+    window = malloc(num_of_monitors * sizeof(GtkWindow *));
     GtkWidget **box = malloc(num_of_monitors * sizeof(GtkWidget *));
     GdkMonitor **monitors = malloc(num_of_monitors * sizeof(GdkMonitor *));
 
