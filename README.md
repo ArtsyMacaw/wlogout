@@ -49,4 +49,4 @@ ninja -C build
 sudo ninja -C build install
 ```
 ## License
-Wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)
+wlogout is licensed under MIT. [Refer to LICENSE for more information](LICENSE)
