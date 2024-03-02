@@ -1,0 +1,5 @@
+BasedOnStyle:  Microsoft
+PenaltyReturnTypeOnItsOwnLine: 60
+ColumnLimit: 80
+BreakBeforeBraces: Allman
+SortIncludes: false

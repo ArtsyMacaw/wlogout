@@ -47,8 +47,7 @@ static gboolean layershell = FALSE;
 
 static gboolean process_args(int argc, char *argv[])
 {
-    static struct option long_options[] =
-    {
+    static struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
         {"layout", required_argument, NULL, 'l'},
         {"version", no_argument, NULL, 'v'},
@@ -65,8 +64,7 @@ static gboolean process_args(int argc, char *argv[])
         {"show-binds", no_argument, NULL, 's'},
         {"no-span", no_argument, NULL, 'n'},
         {"primary-monitor", required_argument, NULL, 'P'},
-        {0, 0, 0, 0}
-    };
+        {0, 0, 0, 0}};
 
     const char *help =
         "Usage: wlogout [options] [command]\n"
@@ -84,82 +82,88 @@ static gboolean process_args(int argc, char *argv[])
         "   -T, --margin-top <padding>      Set margin for top of buttons\n"
         "   -B, --margin-bottom <padding>   Set margin for bottom of buttons\n"
         "   -p, --protocol <protocol>       Use layer-shell or xdg protocol\n"
-        "   -s, --show-binds                Show the keybinds on their corresponding button\n"
-        "   -n, --no-span                   Stops from spanning across multiple monitors\n"
-        "   -P, --primary-monitor <num>     Set the monitor that buttons appear on\n";
+        "   -s, --show-binds                Show the keybinds on their "
+        "corresponding button\n"
+        "   -n, --no-span                   Stops from spanning across "
+        "multiple monitors\n"
+        "   -P, --primary-monitor <num>     Set the monitor that buttons "
+        "appear on\n";
 
     int c;
     while (TRUE)
     {
         int option_index = 0;
         c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:C:sP:n",
-                long_options, &option_index);
+                        long_options, &option_index);
         if (c == -1)
         {
             break;
         }
         switch (c)
         {
-            case 'm':
-                margin[0] = atoi(optarg);
-                margin[1] = atoi(optarg);
-                margin[2] = atoi(optarg);
-                margin[3] = atoi(optarg);
-                break;
-            case 'L':
-                margin[2] = atoi(optarg);
-                break;
-            case 'T':
-                margin[0] = atoi(optarg);
-                break;
-            case 'B':
-                margin[1] = atoi(optarg);
-                break;
-            case 'R':
-                margin[3] = atoi(optarg);
-                break;
-            case 'c':
-                space[1] = atoi(optarg);
-                break;
-            case 'r':
-                space[0] = atoi(optarg);
-                break;
-            case 'h':
-                g_print("%s\n", help);
+        case 'm':
+            margin[0] = atoi(optarg);
+            margin[1] = atoi(optarg);
+            margin[2] = atoi(optarg);
+            margin[3] = atoi(optarg);
+            break;
+        case 'L':
+            margin[2] = atoi(optarg);
+            break;
+        case 'T':
+            margin[0] = atoi(optarg);
+            break;
+        case 'B':
+            margin[1] = atoi(optarg);
+            break;
+        case 'R':
+            margin[3] = atoi(optarg);
+            break;
+        case 'c':
+            space[1] = atoi(optarg);
+            break;
+        case 'r':
+            space[0] = atoi(optarg);
+            break;
+        case 'h':
+            g_print("%s\n", help);
+            return TRUE;
+        case 'l':
+            layout_path = g_strdup(optarg);
+            break;
+        case 'v':
+            g_print("%s\n", version);
+            return TRUE;
+        case 'C':
+            css_path = g_strdup(optarg);
+            break;
+        case 'b':
+            buttons_per_row = atoi(optarg);
+            break;
+        case 'p':
+            if (strcmp("layer-shell", optarg) == 0)
+            {
+                protocol = TRUE;
+            }
+            else if (strcmp("xdg", optarg) == 0)
+            {
+                protocol = FALSE;
+            }
+            else
+            {
+                g_print("%s is an invalid protocol\n", optarg);
                 return TRUE;
-            case 'l':
-                layout_path = g_strdup(optarg);
-                break;
-            case 'v':
-                g_print("%s\n", version);
-                return TRUE;
-            case 'C':
-                css_path = g_strdup(optarg);
-                break;
-            case 'b':
-                buttons_per_row = atoi(optarg);
-                break;
-            case 'p':
-                if (strcmp("layer-shell", optarg) == 0) {
-                    protocol = TRUE;
-                }
-                else if (strcmp("xdg", optarg) == 0) {
-                    protocol = FALSE;
-                }
-                else {
-                    g_print("%s is an invalid protocol\n", optarg);
-                    return TRUE;
-                }
-                break;
-            case 's':
-                show_bind = TRUE;
-                break;
-            case 'P':
-                primary_monitor = atoi(optarg);
-                break;
-            case 'n':
-                no_span = TRUE;
-                break;
+            }
+            break;
+        case 's':
+            show_bind = TRUE;
+            break;
+        case 'P':
+            primary_monitor = atoi(optarg);
+            break;
+        case 'n':
+            no_span = TRUE;
+            break;
         }
     }
     return FALSE;
@@ -184,7 +188,7 @@ static gboolean get_layout_path()
             free(buf);
             buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
             snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
-                    "%s/.config", config_path);
+                     "%s/.config", config_path);
         }
         config_path = g_strdup(buf);
     }
@@ -195,7 +199,7 @@ static gboolean get_layout_path()
         free(buf);
         buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
         snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
-                "%s/wlogout/layout", config_path);
+                 "%s/wlogout/layout", config_path);
     }
     free(config_path);
 
@@ -248,7 +252,7 @@ static gboolean get_css_path()
             free(buf);
             buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
             snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
-                    "%s/.config", config_path);
+                     "%s/.config", config_path);
         }
         config_path = g_strdup(buf);
     }
@@ -259,7 +263,7 @@ static gboolean get_css_path()
         free(buf);
         buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
         snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
-                "%s/wlogout/style.css", config_path);
+                 "%s/wlogout/style.css", config_path);
     }
     free(config_path);
 
@@ -292,9 +296,10 @@ static gboolean get_css_path()
     }
 }
 
-static gboolean background_clicked(GtkWidget *widget, GdkEventButton event, gpointer user_data)
+static gboolean background_clicked(GtkWidget *widget, GdkEventButton event,
+                                   gpointer user_data)
 {
-    for(int i = 0; i < num_of_monitors; i++)
+    for (int i = 0; i < num_of_monitors; i++)
     {
         if (i != primary_monitor)
         {
@@ -341,8 +346,8 @@ static gboolean get_buttons(FILE *json)
         if (numtok == JSMN_ERROR_NOMEM)
         {
             i++;
-            jsmntok_t *tmp = realloc(tok,
-                    ((default_size * i) * sizeof(jsmntok_t)));
+            jsmntok_t *tmp =
+                realloc(tok, ((default_size * i) * sizeof(jsmntok_t)));
             if (!tmp)
             {
                 free(tok);
@@ -387,16 +392,16 @@ static gboolean get_buttons(FILE *json)
             {
                 char buf[length + 1];
                 get_substring(buf, tok[i].start, tok[i].end, buffer);
-                buttons[num_buttons - 1].label = malloc(sizeof(char)
-                        * (length + 1));
+                buttons[num_buttons - 1].label =
+                    malloc(sizeof(char) * (length + 1));
                 strcpy(buttons[num_buttons - 1].label, buf);
             }
             else if (strcmp(tmp, "action") == 0)
             {
                 char buf[length + 1];
                 get_substring(buf, tok[i].start, tok[i].end, buffer);
-                buttons[num_buttons - 1].action = malloc(sizeof(char)
-                        * length + 1);
+                buttons[num_buttons - 1].action =
+                    malloc(sizeof(char) * length + 1);
                 strcpy(buttons[num_buttons - 1].action, buf);
             }
             else if (strcmp(tmp, "text") == 0)
@@ -406,8 +411,8 @@ static gboolean get_buttons(FILE *json)
                 /* Add a small buffer to allocated memory so the keybind
                  * can easily be concatenated later if needed */
                 int keybind_buffer = sizeof(guint) + (sizeof(char) * 2);
-                buttons[num_buttons - 1].text = malloc((sizeof(char)
-                        * (length + 1)) + keybind_buffer);
+                buttons[num_buttons - 1].text =
+                    malloc((sizeof(char) * (length + 1)) + keybind_buffer);
                 strcpy(buttons[num_buttons - 1].text, buf);
             }
             else if (strcmp(tmp, "keybind") == 0)
@@ -423,7 +428,8 @@ static gboolean get_buttons(FILE *json)
             }
             else if (strcmp(tmp, "height") == 0)
             {
-                if (tok[i].type != JSMN_PRIMITIVE || !isdigit(buffer[tok[i].start]))
+                if (tok[i].type != JSMN_PRIMITIVE ||
+                    !isdigit(buffer[tok[i].start]))
                 {
                     fprintf(stderr, "Invalid height\n");
                 }
@@ -434,7 +440,8 @@ static gboolean get_buttons(FILE *json)
             }
             else if (strcmp(tmp, "width") == 0)
             {
-                if (tok[i].type != JSMN_PRIMITIVE || !isdigit(buffer[tok[i].start]))
+                if (tok[i].type != JSMN_PRIMITIVE ||
+                    !isdigit(buffer[tok[i].start]))
                 {
                     fprintf(stderr, "Invalid width\n");
                 }
@@ -451,10 +458,12 @@ static gboolean get_buttons(FILE *json)
                 }
                 else
                 {
-                    if (buffer[tok[i].start] == 't') {
+                    if (buffer[tok[i].start] == 't')
+                    {
                         buttons[num_buttons - 1].circular = TRUE;
                     }
-                    else {
+                    else
+                    {
                         buttons[num_buttons - 1].circular = FALSE;
                     }
                 }
@@ -484,7 +493,7 @@ static void execute(GtkWidget *widget, char *action)
     command = malloc(strlen(action) * sizeof(char) + 1);
     strcpy(command, action);
     gtk_widget_destroy(gtk_window);
-    for(int i = 0; i < num_of_monitors; i++)
+    for (int i = 0; i < num_of_monitors; i++)
     {
         if (i != primary_monitor)
         {
@@ -496,7 +505,8 @@ static void execute(GtkWidget *widget, char *action)
 
 static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
-    if (event->keyval == GDK_KEY_Escape) {
+    if (event->keyval == GDK_KEY_Escape)
+    {
         gtk_main_quit();
         return TRUE;
     }
@@ -513,23 +523,24 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 static void set_fullscreen(GtkWindow *win, int monitor, gboolean keyboard)
 {
-    GdkMonitor *mon = gdk_display_get_monitor(gdk_display_get_default(), monitor);
+    GdkMonitor *mon =
+        gdk_display_get_monitor(gdk_display_get_default(), monitor);
 
     if (protocol && layershell)
     {
-        #ifdef LAYERSHELL
-        gtk_layer_init_for_window (win);
-        gtk_layer_set_layer (win, GTK_LAYER_SHELL_LAYER_OVERLAY);
-        gtk_layer_set_namespace (win, "logout_dialog");
-        gtk_layer_set_exclusive_zone (win, exclusive_level);
+#ifdef LAYERSHELL
+        gtk_layer_init_for_window(win);
+        gtk_layer_set_layer(win, GTK_LAYER_SHELL_LAYER_OVERLAY);
+        gtk_layer_set_namespace(win, "logout_dialog");
+        gtk_layer_set_exclusive_zone(win, exclusive_level);
 
         for (int j = 0; j < GTK_LAYER_SHELL_EDGE_ENTRY_NUMBER; j++)
         {
-            gtk_layer_set_anchor (win, j, TRUE);
+            gtk_layer_set_anchor(win, j, TRUE);
         }
         gtk_layer_set_monitor(win, mon);
-        gtk_layer_set_keyboard_interactivity (win, keyboard);
-        #endif
+        gtk_layer_set_keyboard_interactivity(win, keyboard);
+#endif
     }
     else
     {
@@ -539,7 +550,8 @@ static void set_fullscreen(GtkWindow *win, int monitor, gboolean keyboard)
         }
         else
         {
-            gtk_window_fullscreen_on_monitor(win, gdk_screen_get_default(), monitor);
+            gtk_window_fullscreen_on_monitor(win, gdk_screen_get_default(),
+                                             monitor);
         }
     }
 }
@@ -554,8 +566,8 @@ static void get_monitor(GtkWidget *widget, GdkEventKey *event, gpointer data)
         return;
     }
     GdkDisplay *display = gdk_display_get_default();
-    GdkMonitor *active_monitor = 
-                    gdk_display_get_monitor_at_window(display, gtk_widget_get_window(gtk_window));
+    GdkMonitor *active_monitor = gdk_display_get_monitor_at_window(
+        display, gtk_widget_get_window(gtk_window));
     num_of_monitors = gdk_display_get_n_monitors(display);
     window = malloc(num_of_monitors * sizeof(GtkWindow *));
     GtkWidget **box = malloc(num_of_monitors * sizeof(GtkWidget *));
@@ -563,7 +575,7 @@ static void get_monitor(GtkWidget *widget, GdkEventKey *event, gpointer data)
 
     for (int i = 0; i < num_of_monitors; i++)
     {
-        window[i] = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
+        window[i] = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
         box[i] = gtk_event_box_new();
         monitors[i] = gdk_display_get_monitor(display, i);
         if (monitors[i] == active_monitor)
@@ -586,11 +598,13 @@ static void get_monitor(GtkWidget *widget, GdkEventKey *event, gpointer data)
         {
             // add event box to exit when clicking the background
             gtk_container_add(GTK_CONTAINER(window[i]), box[i]);
-            g_signal_connect(box[i], "button-press-event", G_CALLBACK(background_clicked), NULL);
+            g_signal_connect(box[i], "button-press-event",
+                             G_CALLBACK(background_clicked), NULL);
             gtk_widget_show_all(GTK_WIDGET(window[i]));
         }
     }
-    g_signal_handlers_disconnect_by_func(gtk_window, G_CALLBACK(get_monitor), NULL);
+    g_signal_handlers_disconnect_by_func(gtk_window, G_CALLBACK(get_monitor),
+                                         NULL);
 }
 
 static void load_buttons(GtkContainer *container)
@@ -626,21 +640,24 @@ static void load_buttons(GtkContainer *container)
             if (buttons[count].text && show_bind)
             {
                 strcat(buttons[count].text, "[");
-                strcat(buttons[count].text, (char *) &buttons[count].bind);
+                strcat(buttons[count].text, (char *)&buttons[count].bind);
                 strcat(buttons[count].text, "]");
             }
             but[i][j] = gtk_button_new_with_label(buttons[count].text);
             gtk_widget_set_name(but[i][j], buttons[count].label);
-            gtk_label_set_yalign(GTK_LABEL(
-                        gtk_bin_get_child(GTK_BIN(but[i][j]))), buttons[count].yalign);
-            gtk_label_set_xalign(GTK_LABEL(
-                        gtk_bin_get_child(GTK_BIN(but[i][j]))), buttons[count].xalign);
-            if (buttons[count].circular) {
+            gtk_label_set_yalign(
+                GTK_LABEL(gtk_bin_get_child(GTK_BIN(but[i][j]))),
+                buttons[count].yalign);
+            gtk_label_set_xalign(
+                GTK_LABEL(gtk_bin_get_child(GTK_BIN(but[i][j]))),
+                buttons[count].xalign);
+            if (buttons[count].circular)
+            {
                 gtk_style_context_add_class(
                     gtk_widget_get_style_context(but[i][j]), "circular");
             }
             g_signal_connect(but[i][j], "clicked", G_CALLBACK(execute),
-                        buttons[count].action);
+                             buttons[count].action);
             gtk_widget_set_hexpand(but[i][j], TRUE);
             gtk_widget_set_vexpand(but[i][j], TRUE);
             gtk_grid_attach(GTK_GRID(grid), but[i][j], i, j, 1, 1);
@@ -660,10 +677,11 @@ static void load_css()
         g_clear_error(&error);
     }
     gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
-            GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_USER);
+                                              GTK_STYLE_PROVIDER(css),
+                                              GTK_STYLE_PROVIDER_PRIORITY_USER);
 }
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     buttons = malloc(sizeof(button) * default_size);
 
@@ -697,27 +715,30 @@ int main (int argc, char *argv[])
         return 3;
     }
 
-    #ifdef LAYERSHELL
+#ifdef LAYERSHELL
     layershell = gtk_layer_is_supported();
-    #else
+#else
     printf("wlogout was not compiled with layer shell support\n");
-    #endif
+#endif
 
-    GtkWindow *active_window = GTK_WINDOW (gtk_window_new (GTK_WINDOW_TOPLEVEL));
+    GtkWindow *active_window = GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
     set_fullscreen(active_window, primary_monitor, TRUE);
 
     gtk_window = GTK_WIDGET(active_window);
-    g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key), NULL);
+    g_signal_connect(gtk_window, "key_press_event", G_CALLBACK(check_key),
+                     NULL);
     if (!no_span)
     {
         /* The compositor will only tell us what monitor wlogouts on after
          * after gtk_main() is called and its been drawn */
-        g_signal_connect_after(gtk_window, "draw", G_CALLBACK(get_monitor), NULL);
+        g_signal_connect_after(gtk_window, "draw", G_CALLBACK(get_monitor),
+                               NULL);
     }
 
     GtkWidget *active_box = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(gtk_window), active_box);
-    g_signal_connect(active_box, "button-press-event", G_CALLBACK(background_clicked), NULL);
+    g_signal_connect(active_box, "button-press-event",
+                     G_CALLBACK(background_clicked), NULL);
 
     load_buttons(GTK_CONTAINER(active_box));
     load_css();
