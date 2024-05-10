@@ -19,7 +19,7 @@ wlogout - A Wayland logout menu
 *-v, --version*
 	Show version number and stop
 
-*-C, -css* <css>
+*-C, --css* <css>
 	Specify a custom css file
 
 *-b, --buttons-per-row* <num>
