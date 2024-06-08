@@ -40,10 +40,10 @@ wlogout - A Wayland logout menu
 *-R, --margin-right* <padding>
 	Set margin for right of buttons
 
-*-T, --margin-right* <padding>
+*-T, --margin-top* <padding>
 	Set margin for top of buttons
 
-*-B, --margin-right* <padding>
+*-B, --margin-bottom* <padding>
 	Set margin for bottom of buttons
 
 *-p, --protocol* <protocol>
