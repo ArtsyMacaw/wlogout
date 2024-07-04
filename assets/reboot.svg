@@ -1,7 +1,75 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Svg Vector Icons : http://www.onlinewebfonts.com/icon -->
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1000 1000" enable-background="new 0 0 1000 1000" xml:space="preserve">
-<metadata> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
-<g><path d="M134.6,285.6C64.9,420.7,60.1,590,137.1,723.4L42,668.5l-32,55.4c93.1,52.1,133.6,75.9,184,106.2c28.5-51.5,52.8-94.4,107.4-186.1L246,612l-53.4,92.5C65.4,502.7,167.2,200.3,398.8,126.2C638,29.3,929,223.5,931.5,481.5c19.6,236.7-208.9,443.6-439.3,416.2l-29.5,51c277.7,54.4,556.5-201.7,524.7-483.1C976.1,170.8,637.1-41.2,367.1,77.5C262.8,114.2,183.1,191.5,134.6,285.6z"/></g>
+
+<svg
+   version="1.1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 1000 1000"
+   enable-background="new 0 0 1000 1000"
+   xml:space="preserve"
+   id="svg1"
+   sodipodi:docname="reboot.svg"
+   inkscape:version="1.3.1 (9b9bdc1480, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs1"><inkscape:path-effect
+     effect="fillet_chamfer"
+     id="path-effect3"
+     is_visible="true"
+     lpeversion="1"
+     nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,20.120171,0,1 @ F,0,0,1,0,24.610032,0,1 @ F,0,0,1,0,0,0,1 @ F,0,0,1,0,0,0,1"
+     radius="0"
+     unit="px"
+     method="auto"
+     mode="F"
+     chamfer_steps="1"
+     flexible="false"
+     use_knot_distance="true"
+     apply_no_radius="true"
+     apply_with_radius="true"
+     only_selected="false"
+     hide_knots="false" /><inkscape:path-effect
+     effect="fillet_chamfer"
+     id="path-effect2"
+     is_visible="true"
+     lpeversion="1"
+     nodesatellites_param="F,0,0,1,0,0,0,1 @ F,0,0,1,0,18.687148,0,1 @ F,0,0,1,0,24.012273,0,1 @ F,0,0,1,0,26.507392,0,1 @ F,0,0,1,0,22.412134,0,1 @ F,0,0,1,0,19.089872,0,1 @ F,0,0,1,0,0,0,1"
+     radius="0"
+     unit="px"
+     method="auto"
+     mode="F"
+     chamfer_steps="1"
+     flexible="false"
+     use_knot_distance="true"
+     apply_no_radius="true"
+     apply_with_radius="true"
+     only_selected="false"
+     hide_knots="false" /></defs><sodipodi:namedview
+   id="namedview1"
+   pagecolor="#505050"
+   bordercolor="#ffffff"
+   borderopacity="1"
+   inkscape:showpageshadow="0"
+   inkscape:pageopacity="0"
+   inkscape:pagecheckerboard="1"
+   inkscape:deskcolor="#505050"
+   inkscape:zoom="1.754"
+   inkscape:cx="58.437856"
+   inkscape:cy="758.83694"
+   inkscape:window-width="1900"
+   inkscape:window-height="1001"
+   inkscape:window-x="0"
+   inkscape:window-y="0"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg1" />
+<metadata
+   id="metadata1"> Svg Vector Icons : http://www.onlinewebfonts.com/icon </metadata>
+<path
+   id="path1-7"
+   d="M 500,10 C 229.40081,10 10,229.40081 10,500 10,614.25071 49.256702,719.22604 114.86328,802.51367 l -29.880858,0.49805 c -16.113902,0 -32.778637,7.19878 -32.806641,26.90039 l -0.351562,43.27734 c -0.133209,20.92306 19.896846,27.92551 33.158203,27.84571 78.184288,-0.4705 114.612938,1.49768 162.632808,0.78515 22.21138,-0.32958 36.34753,-21.31208 36.22461,-35.95117 -0.4104,-48.87931 -0.3093,-90.47405 1.04883,-169.86328 0.21172,-12.37604 -16.22342,-28.53747 -32.00586,-28.63867 l -28.47461,-0.32422 c -17.6546,-0.11434 -31.10766,17.79382 -31.51562,28.96289 -0.40796,11.16907 -0.99805,34.86328 -0.99805,34.86328 C 143.57874,666.55078 114.90039,586.65283 114.90039,500 114.90039,287.30063 287.30063,114.90039 500,114.90039 c 212.69937,0 385.09961,172.40024 385.09961,385.09961 0,212.84927 -161.34571,347.37544 -307.48438,377.27636 -21.72215,4.44448 -38.67743,7.48066 -55.09919,7.55212 -28.58973,0.1244 -48.02185,22.64585 -50.05913,49.51857 -2.16627,43.11819 34.6151,55.88506 52.75663,55.0153 26.73183,-1.2816 51.4051,-4.78972 73.53271,-9.31824 C 785.49047,941.82605 990,769.96484 990,500 990,229.40081 770.59919,10 500,10 Z"
+   inkscape:label="path1"
+   sodipodi:nodetypes="ssccccsssscczcssssscssss" />
 </svg>
