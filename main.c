@@ -442,7 +442,10 @@ static gboolean get_buttons(FILE *json)
                 }
                 else
                 {
-                    buttons[num_buttons - 1].yalign = buffer[tok[i].start];
+                    char height[tok[i].size + 1];
+                    get_substring(height, tok[i].start, tok[i].end, buffer);
+
+                    buttons[num_buttons - 1].yalign = atof(height);
                 }
             }
             else if (strcmp(tmp, "width") == 0)
@@ -454,7 +457,10 @@ static gboolean get_buttons(FILE *json)
                 }
                 else
                 {
-                    buttons[num_buttons - 1].xalign = buffer[tok[i].start];
+                    char width[tok[i].size + 1];
+                    get_substring(width, tok[i].start, tok[i].end, buffer);
+
+                    buttons[num_buttons - 1].xalign = atof(width);
                 }
             }
             else if (strcmp(tmp, "circular") == 0)
