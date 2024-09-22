@@ -517,6 +517,12 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
         gtk_main_quit();
         return TRUE;
     }
+    gdk_keymap_translate_keyboard_state(
+				gdk_keymap_get_for_display(gdk_display_get_default()),
+				event->hardware_keycode,
+				event->state,
+				0,
+				&event->keyval, NULL, NULL, 0);
     for (int i = 0; i < num_buttons; i++)
     {
         if (buttons[i].bind == event->keyval)
