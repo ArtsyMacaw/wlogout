@@ -32,11 +32,47 @@ typedef struct
     gboolean circular;
 } button;
 
-static const int default_size = 100;
+enum
+{
+    MARGIN_TOP,
+    MARGIN_BOTTOM,
+    MARGIN_LEFT,
+    MARGIN_RIGHT,
+
+    /*
+     * The total number of margin values. This must be defined last in the
+     * enum.
+     */
+    MARGIN_MAX
+};
+
+enum
+{
+    SPACING_ROW,
+    SPACING_COLUMN,
+
+    /*
+     * The total number of spacing values. This mas be defined last in the
+     * enum.
+     */
+    SPACING_MAX,
+};
+
+static const char *margin_names[MARGIN_MAX] = {[MARGIN_TOP] = "top margin",
+                                               [MARGIN_BOTTOM] =
+                                                   "bottom margin",
+                                               [MARGIN_LEFT] = "left margin",
+                                               [MARGIN_RIGHT] = "right margin"};
+
+static const char *space_names[MARGIN_MAX] = {
+    [SPACING_ROW] = "row spacing", [SPACING_COLUMN] = "column spacing"};
+
+#define DEFAULT_SIZE 100
+
 static char *command = NULL;
 static char *layout_path = NULL;
 static char *css_path = NULL;
-static button *buttons = NULL;
+static button buttons[DEFAULT_SIZE];
 static GtkWidget *gtk_window = NULL;
 static int num_buttons = 0;
 static int draw = 0;
@@ -44,8 +80,8 @@ static int num_of_monitors = 0;
 static GtkWindow **window = NULL;
 static int buttons_per_row = 3;
 static int primary_monitor = -1;
-static int margin[] = {230, 230, 230, 230};
-static int space[] = {0, 0};
+static int margin[MARGIN_MAX] = {230, 230, 230, 230};
+static int space[SPACING_MAX] = {0, 0};
 static gboolean show_bind = FALSE;
 static gboolean no_span = FALSE;
 static gboolean layershell = FALSE;
@@ -76,7 +112,7 @@ static const char *help =
     "   -l, --layout </path/to/layout>  Specify a layout file\n"
     "   -v, --version                   Show version number and stop\n"
     "   -C, --css </path/to/css>        Specify a css file\n"
-    "   -b, --buttons-per-row <0-x>     Set the number of buttons per row\n"
+    "   -b, --buttons-per-row <1-x>     Set the number of buttons per row\n"
     "   -c  --column-spacing <0-x>      Set space between buttons columns\n"
     "   -r  --row-spacing <0-x>         Set space between buttons rows\n"
     "   -m, --margin <0-x>              Set margin around buttons\n"
@@ -90,6 +126,21 @@ static const char *help =
     "   -n, --no-span                   Stops from spanning across "
     "multiple monitors\n"
     "   -P, --primary-monitor <0-x>     Set the primary monitor\n";
+
+static char const *error_nomem = "Failed to allocate memory\n";
+
+static gboolean parse_numarg(const char *str, int *nump)
+{
+    /*
+     * sscanf() will successfully parse an integer from a string if there are
+     * trailing non-numeric characters. We can check that the entire string
+     * looks like a number if there is no extra trailing characters not parsed
+     * by "%d". So we expect sscanf to parse exactly 1 argument from the
+     * format.
+     */
+    char garbage;
+    return sscanf(str, "%d%c", nump, &garbage) == 1;
+}
 
 static gboolean process_args(int argc, char *argv[])
 {
@@ -106,28 +157,63 @@ static gboolean process_args(int argc, char *argv[])
         switch (c)
         {
         case 'm':
-            margin[0] = atoi(optarg);
-            margin[1] = atoi(optarg);
-            margin[2] = atoi(optarg);
-            margin[3] = atoi(optarg);
+            int m;
+            if (!parse_numarg(optarg, &m))
+            {
+                g_print("margin %s is not a number\n", optarg);
+                return TRUE;
+            }
+
+            for (int i = 0; i < MARGIN_MAX; i++)
+                margin[i] = m;
             break;
         case 'L':
-            margin[2] = atoi(optarg);
+            if (!parse_numarg(optarg, &margin[MARGIN_LEFT]))
+            {
+                g_print("%s %s is not a number\n", margin_names[MARGIN_LEFT],
+                        optarg);
+                return TRUE;
+            }
             break;
         case 'T':
-            margin[0] = atoi(optarg);
+            if (!parse_numarg(optarg, &margin[MARGIN_TOP]))
+            {
+                g_print("%s %s is not a number\n", margin_names[MARGIN_TOP],
+                        optarg);
+                return TRUE;
+            }
             break;
         case 'B':
-            margin[1] = atoi(optarg);
+            if (!parse_numarg(optarg, &margin[MARGIN_BOTTOM]))
+            {
+                g_print("%s %s is not a number\n", margin_names[MARGIN_BOTTOM],
+                        optarg);
+                return TRUE;
+            }
             break;
         case 'R':
-            margin[3] = atoi(optarg);
+            if (!parse_numarg(optarg, &margin[MARGIN_RIGHT]))
+            {
+                g_print("%s %s is not a number\n", margin_names[MARGIN_RIGHT],
+                        optarg);
+                return TRUE;
+            }
             break;
         case 'c':
-            space[1] = atoi(optarg);
+            if (!parse_numarg(optarg, &space[SPACING_COLUMN]))
+            {
+                g_print("%s %s is not a number\n", space_names[SPACING_COLUMN],
+                        optarg);
+                return TRUE;
+            }
             break;
         case 'r':
-            space[0] = atoi(optarg);
+            if (!parse_numarg(optarg, &space[SPACING_ROW]))
+            {
+                g_print("%s %s is not a number\n", space_names[SPACING_ROW],
+                        optarg);
+                return TRUE;
+            }
             break;
         case 'l':
             layout_path = g_strdup(optarg);
@@ -139,7 +225,11 @@ static gboolean process_args(int argc, char *argv[])
             css_path = g_strdup(optarg);
             break;
         case 'b':
-            buttons_per_row = atoi(optarg);
+            if (!parse_numarg(optarg, &buttons_per_row))
+            {
+                g_print("buttons per row %s is not a number\n", optarg);
+                return TRUE;
+            }
             break;
         case 'p':
             if (strcmp("layer-shell", optarg) == 0)
@@ -160,7 +250,11 @@ static gboolean process_args(int argc, char *argv[])
             show_bind = TRUE;
             break;
         case 'P':
-            primary_monitor = atoi(optarg);
+            if (!parse_numarg(optarg, &primary_monitor))
+            {
+                g_print("pparimary monitor %s is not a number\n", optarg);
+                return TRUE;
+            }
             break;
         case 'n':
             no_span = TRUE;
@@ -172,39 +266,76 @@ static gboolean process_args(int argc, char *argv[])
             return TRUE;
         }
     }
+
+    /*
+     * Before resuming, validate that the arguments make sense. Otherwise we
+     * will encounter failures during the run.
+     */
+
+    if (buttons_per_row < 1)
+    {
+        g_print("The number of buttons per row cannot be less than 1\n");
+        return TRUE;
+    }
+
+    for (int i = 0; i < MARGIN_MAX; i++)
+    {
+        if (margin[i] < 0)
+        {
+            g_print("%s cannot be a negative number\n", margin_names[i]);
+            return TRUE;
+        }
+    }
+
+    for (int i = 0; i < SPACING_MAX; i++)
+    {
+        if (space[i] < 0)
+        {
+            g_print("%s cannot be a negative number\n", space_names[i]);
+            return TRUE;
+        }
+    }
+
     return FALSE;
+}
+
+static void abort_if(gboolean condition, const char *message)
+{
+    if (!condition)
+        return;
+    fprintf(stderr, "%s\n", message);
+    exit(EXIT_FAILURE);
 }
 
 static gboolean get_layout_path()
 {
-    char *buf = malloc(default_size * sizeof(char));
-    if (!buf)
-    {
-        fprintf(stderr, "Failed to allocate memory\n");
-    }
+    char *buf = malloc(DEFAULT_SIZE * sizeof(char));
+    abort_if(!buf, error_nomem);
 
     char *tmp = getenv("XDG_CONFIG_HOME");
     char *config_path = g_strdup(tmp);
     if (!config_path)
     {
         config_path = getenv("HOME");
-        int n = snprintf(buf, default_size, "%s/.config", config_path);
+        int n = snprintf(buf, DEFAULT_SIZE, "%s/.config", config_path);
         if (n != 0)
         {
             free(buf);
-            buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
-            snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+            buf = malloc((DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n));
+            abort_if(!buf, error_nomem);
+            snprintf(buf, (DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n),
                      "%s/.config", config_path);
         }
         config_path = g_strdup(buf);
     }
 
-    int n = snprintf(buf, default_size, "%s/wlogout/layout", config_path);
+    int n = snprintf(buf, DEFAULT_SIZE, "%s/wlogout/layout", config_path);
     if (n != 0)
     {
         free(buf);
-        buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
-        snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+        buf = malloc((DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n));
+        abort_if(!buf, error_nomem);
+        snprintf(buf, (DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n),
                  "%s/wlogout/layout", config_path);
     }
     free(config_path);
@@ -241,34 +372,33 @@ static gboolean get_layout_path()
 
 static gboolean get_css_path()
 {
-    char *buf = malloc(default_size * sizeof(char));
-    if (!buf)
-    {
-        fprintf(stderr, "Failed to allocate memory\n");
-    }
+    char *buf = malloc(DEFAULT_SIZE * sizeof(char));
+    abort_if(!buf, error_nomem);
 
     char *tmp = getenv("XDG_CONFIG_HOME");
     char *config_path = g_strdup(tmp);
     if (!config_path)
     {
         config_path = getenv("HOME");
-        int n = snprintf(buf, default_size, "%s/.config", config_path);
+        int n = snprintf(buf, DEFAULT_SIZE, "%s/.config", config_path);
         if (n != 0)
         {
             free(buf);
-            buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
-            snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+            buf = malloc((DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n));
+            abort_if(!buf, error_nomem);
+            snprintf(buf, (DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n),
                      "%s/.config", config_path);
         }
         config_path = g_strdup(buf);
     }
 
-    int n = snprintf(buf, default_size, "%s/wlogout/style.css", config_path);
+    int n = snprintf(buf, DEFAULT_SIZE, "%s/wlogout/style.css", config_path);
     if (n != 0)
     {
         free(buf);
-        buf = malloc((default_size * sizeof(char)) + (sizeof(char) * n));
-        snprintf(buf, (default_size * sizeof(char)) + (sizeof(char) * n),
+        buf = malloc((DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n));
+        abort_if(!buf, error_nomem);
+        snprintf(buf, (DEFAULT_SIZE * sizeof(char)) + (sizeof(char) * n),
                  "%s/wlogout/style.css", config_path);
     }
     free(config_path);
@@ -330,6 +460,7 @@ static gboolean get_buttons(FILE *json)
     rewind(json);
 
     char *buffer = malloc(length);
+    abort_if(!buffer, error_nomem);
     if (!buffer)
     {
         g_warning("Failed to allocate memory\n");
@@ -338,23 +469,19 @@ static gboolean get_buttons(FILE *json)
     fread(buffer, 1, length, json);
 
     jsmn_parser p;
-    jsmntok_t *tok = malloc(default_size * sizeof(jsmntok_t));
-    if (!tok)
-    {
-        free(buffer);
-        g_warning("Failed to allocate memory\n");
-        return TRUE;
-    }
+    jsmntok_t *tok = malloc(DEFAULT_SIZE * sizeof(jsmntok_t));
+    abort_if(!tok, error_nomem);
+
     jsmn_init(&p);
     int numtok, i = 1;
     do
     {
-        numtok = jsmn_parse(&p, buffer, length, tok, default_size * i);
+        numtok = jsmn_parse(&p, buffer, length, tok, DEFAULT_SIZE * i);
         if (numtok == JSMN_ERROR_NOMEM)
         {
             i++;
             jsmntok_t *tmp =
-                realloc(tok, ((default_size * i) * sizeof(jsmntok_t)));
+                realloc(tok, ((DEFAULT_SIZE * i) * sizeof(jsmntok_t)));
             if (!tmp)
             {
                 free(tok);
@@ -401,6 +528,7 @@ static gboolean get_buttons(FILE *json)
                 get_substring(buf, tok[i].start, tok[i].end, buffer);
                 buttons[num_buttons - 1].label =
                     malloc(sizeof(char) * (length + 1));
+                abort_if(!buttons[num_buttons - 1].label, error_nomem);
                 strcpy(buttons[num_buttons - 1].label, buf);
             }
             else if (strcmp(tmp, "action") == 0)
@@ -409,6 +537,7 @@ static gboolean get_buttons(FILE *json)
                 get_substring(buf, tok[i].start, tok[i].end, buffer);
                 buttons[num_buttons - 1].action =
                     malloc(sizeof(char) * length + 1);
+                abort_if(!buttons[num_buttons - 1].action, error_nomem);
                 strcpy(buttons[num_buttons - 1].action, buf);
             }
             else if (strcmp(tmp, "text") == 0)
@@ -420,6 +549,7 @@ static gboolean get_buttons(FILE *json)
                 int keybind_buffer = sizeof(guint) + (sizeof(char) * 2);
                 buttons[num_buttons - 1].text =
                     malloc((sizeof(char) * (length + 1)) + keybind_buffer);
+                abort_if(!buttons[num_buttons - 1].text, error_nomem);
                 strcpy(buttons[num_buttons - 1].text, buf);
             }
             else if (strcmp(tmp, "keybind") == 0)
@@ -498,6 +628,7 @@ static gboolean get_buttons(FILE *json)
 static void execute(GtkWidget *widget, char *action)
 {
     command = malloc(strlen(action) * sizeof(char) + 1);
+    abort_if(!command, error_nomem);
     strcpy(command, action);
     gtk_widget_destroy(gtk_window);
     for (int i = 0; i < num_of_monitors; i++)
@@ -586,8 +717,11 @@ static void get_monitor(GtkWidget *widget, GdkEventKey *event, gpointer data)
         display, gtk_widget_get_window(gtk_window));
     num_of_monitors = gdk_display_get_n_monitors(display);
     window = malloc(num_of_monitors * sizeof(GtkWindow *));
+    abort_if(!window, error_nomem);
     GtkWidget **box = malloc(num_of_monitors * sizeof(GtkWidget *));
+    abort_if(!box, error_nomem);
     GdkMonitor **monitors = malloc(num_of_monitors * sizeof(GdkMonitor *));
+    abort_if(!monitors, error_nomem);
 
     for (int i = 0; i < num_of_monitors; i++)
     {
@@ -628,13 +762,13 @@ static void load_buttons(GtkContainer *container)
     GtkWidget *grid = gtk_grid_new();
     gtk_container_add(container, grid);
 
-    gtk_grid_set_row_spacing(GTK_GRID(grid), space[0]);
-    gtk_grid_set_column_spacing(GTK_GRID(grid), space[1]);
+    gtk_grid_set_row_spacing(GTK_GRID(grid), space[SPACING_ROW]);
+    gtk_grid_set_column_spacing(GTK_GRID(grid), space[SPACING_COLUMN]);
 
-    gtk_widget_set_margin_top(grid, margin[0]);
-    gtk_widget_set_margin_bottom(grid, margin[1]);
-    gtk_widget_set_margin_start(grid, margin[2]);
-    gtk_widget_set_margin_end(grid, margin[3]);
+    gtk_widget_set_margin_top(grid, margin[MARGIN_TOP]);
+    gtk_widget_set_margin_bottom(grid, margin[MARGIN_BOTTOM]);
+    gtk_widget_set_margin_start(grid, margin[MARGIN_LEFT]);
+    gtk_widget_set_margin_end(grid, margin[MARGIN_RIGHT]);
 
     int num_col = 0;
     if ((num_buttons % buttons_per_row) == 0)
@@ -699,8 +833,6 @@ static void load_css()
 
 int main(int argc, char *argv[])
 {
-    buttons = malloc(sizeof(button) * default_size);
-
     g_set_prgname("wlogout");
     gtk_init(&argc, &argv);
     if (process_args(argc, argv))
@@ -768,6 +900,5 @@ int main(int argc, char *argv[])
         free(buttons[i].action);
         free(buttons[i].text);
     }
-    free(buttons);
     free(command);
 }
