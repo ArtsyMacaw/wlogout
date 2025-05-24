@@ -38,6 +38,7 @@ static char *layout_path = NULL;
 static char *css_path = NULL;
 static button *buttons = NULL;
 static GtkWidget *gtk_window = NULL;
+static GtkWidget *first_btn = NULL;
 static int num_buttons = 0;
 static int draw = 0;
 static int num_of_monitors = 0;
@@ -49,6 +50,7 @@ static int space[] = {0, 0};
 static gboolean show_bind = FALSE;
 static gboolean no_span = FALSE;
 static gboolean layershell = FALSE;
+static gboolean unfocus_first_btn = FALSE;
 
 static struct option long_options[] = {
     {"help", no_argument, NULL, 'h'},
@@ -67,6 +69,7 @@ static struct option long_options[] = {
     {"show-binds", no_argument, NULL, 's'},
     {"no-span", no_argument, NULL, 'n'},
     {"primary-monitor", required_argument, NULL, 'P'},
+    {"unfocus-first-btn", no_argument, NULL, 'u'},
     {0, 0, 0, 0}};
 
 static const char *help =
@@ -89,7 +92,8 @@ static const char *help =
     "corresponding button\n"
     "   -n, --no-span                   Stops from spanning across "
     "multiple monitors\n"
-    "   -P, --primary-monitor <0-x>     Set the primary monitor\n";
+    "   -P, --primary-monitor <0-x>     Set the primary monitor\n"
+    "   -u, --unfocus-first-btn         Unfocus the first button until a keypress\n";
 
 static gboolean process_args(int argc, char *argv[])
 {
@@ -97,7 +101,7 @@ static gboolean process_args(int argc, char *argv[])
     while (TRUE)
     {
         int option_index = 0;
-        int c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:C:sP:n",
+        int c = getopt_long(argc, argv, "hl:vc:m:b:T:R:L:B:r:c:p:C:sP:n:u",
                         long_options, &option_index);
         if (c == -1)
         {
@@ -164,6 +168,9 @@ static gboolean process_args(int argc, char *argv[])
             break;
         case 'n':
             no_span = TRUE;
+            break;
+        case 'u':
+            unfocus_first_btn = TRUE;
             break;
         case '?':
         case 'h':
@@ -525,6 +532,11 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
             return TRUE;
         }
     }
+    if(unfocus_first_btn && first_btn != NULL)
+    {
+        gtk_widget_grab_focus(first_btn);
+        first_btn = NULL;
+    }
     return FALSE;
 }
 
@@ -680,6 +692,7 @@ static void load_buttons(GtkContainer *container)
             count++;
         }
     }
+    first_btn = but[0][0];
 }
 
 static void load_css()
@@ -757,6 +770,10 @@ int main(int argc, char *argv[])
     load_buttons(GTK_CONTAINER(active_box));
     load_css();
     gtk_widget_show_all(gtk_window);
+    if (unfocus_first_btn)
+    {
+        gtk_window_set_focus(GTK_WINDOW(gtk_window), NULL);
+    }
 
     gtk_main();
 
