@@ -674,6 +674,11 @@ static void load_buttons(GtkContainer *container)
             }
             g_signal_connect(but[i][j], "clicked", G_CALLBACK(execute),
                              buttons[count].action);
+
+            /* add mouse-hover focus */
+            g_signal_connect(but[i][j], "enter-notify-event",
+                 G_CALLBACK(gtk_widget_grab_focus), but[i][j]);			
+			
             gtk_widget_set_hexpand(but[i][j], TRUE);
             gtk_widget_set_vexpand(but[i][j], TRUE);
             gtk_grid_attach(GTK_GRID(grid), but[i][j], i, j, 1, 1);
