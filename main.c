@@ -517,9 +517,18 @@ static gboolean check_key(GtkWidget *widget, GdkEventKey *event, gpointer data)
         gtk_main_quit();
         return TRUE;
     }
+    /* Also resolve the physical key against the first layout (group 0),
+     * so binds keep working when a non-latin layout is active. */
+    guint base_keyval = 0;
+    GdkKeymap *keymap = gdk_keymap_get_for_display(gdk_display_get_default());
+    gdk_keymap_translate_keyboard_state(keymap, event->hardware_keycode,
+                                        event->state & ~GDK_MOD2_MASK, 0,
+                                        &base_keyval, NULL, NULL, NULL);
+
     for (int i = 0; i < num_buttons; i++)
     {
-        if (buttons[i].bind == event->keyval)
+        if (buttons[i].bind == event->keyval ||
+            (base_keyval != 0 && buttons[i].bind == base_keyval))
         {
             execute(NULL, buttons[i].action);
             return TRUE;
